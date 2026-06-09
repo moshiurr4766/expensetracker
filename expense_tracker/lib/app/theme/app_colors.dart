@@ -1,0 +1,12 @@
+import 'package:flutter/material.dart';
+
+class AppColors {
+  static const seed = Color(0xFF2563EB);
+  static const background = Color(0xFFF7F9FC);
+  static const surface = Colors.white;
+  static const text = Color(0xFF0F172A);
+  static const muted = Color(0xFF64748B);
+  static const success = Color(0xFF16A34A);
+  static const danger = Color(0xFFDC2626);
+  static const warning = Color(0xFFF59E0B);
+}
