@@ -13,6 +13,8 @@ class LocalStorageService {
   String? get uid => _box.read<String>(AppConstants.keySessionUid);
   String? get email => _box.read<String>(AppConstants.keySessionEmail);
   String? get name => _box.read<String>(AppConstants.keySessionName);
+  String? get lastArchivedMonth =>
+      _box.read<String>(AppConstants.keyLastArchivedMonth);
 
   Future<void> markOnboardingSeen() async {
     await _box.write(AppConstants.keyOnboardingSeen, true);
@@ -32,5 +34,9 @@ class LocalStorageService {
     await _box.remove(AppConstants.keySessionUid);
     await _box.remove(AppConstants.keySessionEmail);
     await _box.remove(AppConstants.keySessionName);
+  }
+
+  Future<void> saveLastArchivedMonth(String value) async {
+    await _box.write(AppConstants.keyLastArchivedMonth, value);
   }
 }

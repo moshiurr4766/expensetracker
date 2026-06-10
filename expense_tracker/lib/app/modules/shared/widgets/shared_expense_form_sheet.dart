@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../controllers/expense_controller.dart';
+import '../../../controllers/shared_expense_controller.dart';
 import '../../../utils/formatters.dart';
 import '../../../widgets/app_text_field.dart';
 import '../../../widgets/primary_button.dart';
 
-class ExpenseFormSheet extends StatelessWidget {
-  final ExpenseController controller;
+class SharedExpenseFormSheet extends StatelessWidget {
+  final SharedExpenseController controller;
 
-  const ExpenseFormSheet({super.key, required this.controller});
+  const SharedExpenseFormSheet({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +28,16 @@ class ExpenseFormSheet extends StatelessWidget {
         top: false,
         child: Obx(() {
           final categories = controller.categories;
+          final people = controller.people;
           final selectedCategory = categories.any(
             (item) => item.id == controller.selectedCategoryId.value,
           )
               ? controller.selectedCategoryId.value
+              : null;
+          final selectedPerson = people.any(
+            (item) => item.id == controller.selectedPaidByPersonId.value,
+          )
+              ? controller.selectedPaidByPersonId.value
               : null;
 
           return Form(
@@ -46,8 +52,8 @@ class ExpenseFormSheet extends StatelessWidget {
                       Expanded(
                         child: Text(
                           controller.editingExpense.value == null
-                              ? 'Add Expense'
-                              : 'Update Expense',
+                              ? 'Add Shared Expense'
+                              : 'Update Shared Expense',
                           style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
@@ -85,6 +91,26 @@ class ExpenseFormSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedPerson,
+                    items: people
+                        .map(
+                          (person) => DropdownMenuItem(
+                            value: person.id,
+                            child: Text(person.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) =>
+                        controller.selectedPaidByPersonId.value = value,
+                    validator: (value) =>
+                        value == null ? 'Select who paid' : null,
+                    decoration: const InputDecoration(
+                      labelText: 'Paid by',
+                      prefixIcon: Icon(Icons.person_outline_rounded),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
                   AppTextField(
                     controller: controller.amountController,
                     label: 'Amount',
@@ -109,8 +135,8 @@ class ExpenseFormSheet extends StatelessWidget {
                   const SizedBox(height: 22),
                   PrimaryButton(
                     label: controller.editingExpense.value == null
-                        ? 'Save Expense'
-                        : 'Update Expense',
+                        ? 'Save Shared Expense'
+                        : 'Update Shared Expense',
                     icon: Icons.save_rounded,
                     loading: controller.isSaving.value,
                     onPressed: controller.save,

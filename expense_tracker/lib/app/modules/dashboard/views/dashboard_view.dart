@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/dashboard_controller.dart';
-import '../../category/views/categories_tab.dart';
-import '../../expense/views/expenses_tab.dart';
-import '../../income/views/incomes_tab.dart';
+import '../../expense/views/expense_hub_tab.dart';
+import '../../profile/views/profile_tab.dart';
+import '../../shared/views/shared_hub_tab.dart';
 import 'overview_tab.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -15,9 +15,9 @@ class DashboardView extends GetView<DashboardController> {
   Widget build(BuildContext context) {
     final tabs = const [
       OverviewTab(),
-      ExpensesTab(),
-      IncomesTab(),
-      CategoriesTab(),
+      ExpenseHubTab(),
+      SharedHubTab(),
+      ProfileTab(),
     ];
 
     return Obx(
@@ -26,9 +26,9 @@ class DashboardView extends GetView<DashboardController> {
           title: Text(
             [
               'Dashboard',
-              'Expenses',
-              'Income',
-              'Categories',
+              'Account',
+              'Shared',
+              'Profile',
             ][controller.selectedIndex.value],
           ),
           actions: [
@@ -57,17 +57,17 @@ class DashboardView extends GetView<DashboardController> {
             NavigationDestination(
               icon: Icon(Icons.payments_outlined),
               selectedIcon: Icon(Icons.payments_rounded),
-              label: 'Expense',
+              label: 'Account',
             ),
             NavigationDestination(
-              icon: Icon(Icons.savings_outlined),
-              selectedIcon: Icon(Icons.savings_rounded),
-              label: 'Income',
+              icon: Icon(Icons.group_work_outlined),
+              selectedIcon: Icon(Icons.group_work_rounded),
+              label: 'Shared',
             ),
             NavigationDestination(
-              icon: Icon(Icons.category_outlined),
-              selectedIcon: Icon(Icons.category_rounded),
-              label: 'Category',
+              icon: Icon(Icons.person_outline_rounded),
+              selectedIcon: Icon(Icons.person_rounded),
+              label: 'Profile',
             ),
           ],
         ),

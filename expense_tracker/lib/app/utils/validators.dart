@@ -28,4 +28,14 @@ class AppValidators {
     }
     return null;
   }
+
+  static String? optionalAmount(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return null;
+    final parsed = double.tryParse(text);
+    if (parsed == null || parsed < 0) {
+      return 'Enter a valid amount';
+    }
+    return null;
+  }
 }

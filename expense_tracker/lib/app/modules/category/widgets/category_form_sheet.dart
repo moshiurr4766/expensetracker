@@ -62,15 +62,12 @@ class CategoryFormSheet extends StatelessWidget {
                   DropdownButtonFormField<String>(
                     initialValue: controller.selectedType.value,
                     items: const [
-                      DropdownMenuItem(
-                        value: 'expense',
-                        child: Text('Expense'),
-                      ),
+                      DropdownMenuItem(value: 'expense', child: Text('Expense')),
                       DropdownMenuItem(value: 'income', child: Text('Income')),
+                      DropdownMenuItem(value: 'shared', child: Text('Shared')),
                     ],
                     onChanged: controller.editingCategory.value == null
-                        ? (value) =>
-                              controller.selectedType.value = value ?? 'expense'
+                        ? (value) => controller.selectedType.value = value ?? 'expense'
                         : null,
                     decoration: const InputDecoration(
                       labelText: 'Type',
@@ -92,10 +89,7 @@ class CategoryFormSheet extends StatelessWidget {
                         .map(
                           (iconName) => ChoiceChip(
                             selected: controller.selectedIcon.value == iconName,
-                            label: Icon(
-                              AppIconMapper.byName(iconName),
-                              size: 18,
-                            ),
+                            label: Icon(AppIconMapper.byName(iconName), size: 18),
                             onSelected: (_) =>
                                 controller.selectedIcon.value = iconName,
                           ),
@@ -139,8 +133,8 @@ class CategoryFormSheet extends StatelessWidget {
                   const SizedBox(height: 22),
                   PrimaryButton(
                     label: controller.editingCategory.value == null
-                        ? 'Create Category'
-                        : 'Save Category',
+                        ? 'Save Category'
+                        : 'Update Category',
                     icon: Icons.save_rounded,
                     loading: controller.isSaving.value,
                     onPressed: controller.save,

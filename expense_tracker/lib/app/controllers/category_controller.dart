@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/category_model.dart';
+import '../modules/category/widgets/category_form_sheet.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
-import '../modules/category/widgets/category_form_sheet.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
 import 'dashboard_controller.dart';
@@ -56,12 +56,13 @@ class CategoryController extends GetxController {
     super.onClose();
   }
 
-  void openForm([CategoryModel? category]) {
+  void openForm([CategoryModel? category, String? initialType]) {
     editingCategory.value = category;
     nameController.text = category?.name ?? '';
-    selectedType.value = category?.type ?? 'expense';
+    selectedType.value = category?.type ?? initialType ?? 'expense';
     selectedIcon.value = category?.icon ?? 'category';
     selectedColor.value = category?.colorValue ?? 0xFF2563EB;
+
     Get.bottomSheet(
       CategoryFormSheet(controller: this),
       isScrollControlled: true,
@@ -94,6 +95,7 @@ class CategoryController extends GetxController {
           colorValue: selectedColor.value,
         );
       }
+
       Get.back();
       clearForm();
       AppSnackbar.success(
@@ -101,9 +103,9 @@ class CategoryController extends GetxController {
             ? 'Category added successfully'
             : 'Category updated successfully',
       );
-    } catch (e) {
+    } catch (error) {
       AppSnackbar.error(
-        AppSnackbar.fromException(e, 'Unable to save category'),
+        AppSnackbar.fromException(error, 'Unable to save category'),
       );
     } finally {
       isSaving.value = false;
@@ -113,6 +115,7 @@ class CategoryController extends GetxController {
   Future<void> deleteCategory(String id) async {
     final uid = _authService.currentUser?.uid ?? '';
     if (uid.isEmpty) return;
+
     try {
       await _firestoreService.deleteCategory(uid: uid, id: id);
       AppSnackbar.success('Category deleted successfully');

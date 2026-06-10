@@ -5,11 +5,16 @@ class AppConstants {
   static const keySessionUid = 'session_uid';
   static const keySessionEmail = 'session_email';
   static const keySessionName = 'session_name';
+  static const keyLastArchivedMonth = 'last_archived_month';
 
   static const usersCollection = 'users';
   static const categoriesCollection = 'categories';
   static const expensesCollection = 'expenses';
+  static const sharedExpensesCollection = 'shared_expenses';
   static const incomesCollection = 'incomes';
+  static const peopleCollection = 'people';
+  static const settlementHistoryCollection = 'settlement_history';
+  static const monthlyArchiveCollection = 'monthly_history';
 }
 
 class Routes {
@@ -55,5 +60,13 @@ class AppDefaults {
     {'name': 'Freelance', 'icon': 'laptop', 'color': 0xFF4FC3F7},
     {'name': 'Bonus', 'icon': 'card_giftcard', 'color': 0xFF9575CD},
     {'name': 'Investment', 'icon': 'trending_up', 'color': 0xFFFFB74D},
+  ];
+
+  static const defaultSharedCategories = [
+    {'name': 'Rent', 'icon': 'home', 'color': 0xFF60A5FA},
+    {'name': 'Internet', 'icon': 'laptop', 'color': 0xFF34D399},
+    {'name': 'Electricity', 'icon': 'receipt_long', 'color': 0xFFFBBF24},
+    {'name': 'Gas', 'icon': 'directions_car', 'color': 0xFFF97316},
+    {'name': 'Others', 'icon': 'category', 'color': 0xFF94A3B8},
   ];
 }
