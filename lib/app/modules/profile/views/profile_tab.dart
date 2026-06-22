@@ -127,7 +127,8 @@ class ProfileTab extends StatelessWidget {
               _ChoiceTile(
                 icon: Icons.group_work_outlined,
                 title: 'Shared feature categories',
-                subtitle: 'Create rent, gas, internet and other household buckets.',
+                subtitle:
+                    'Create rent, gas, internet and other household buckets.',
                 onTap: () {
                   Get.back();
                   onShared();
@@ -161,9 +162,9 @@ class _CategoryHub extends StatelessWidget {
       children: [
         Text(
           'Category hub',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 10),
         Row(
@@ -297,9 +298,9 @@ class _ProfileHeader extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Paid ${AppFormatters.currency.format(totalPaid)} | Pending settlement ${AppFormatters.currency.format(totalDue)} | $expenseCount expenses logged',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white70,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
           ),
         ],
       ),
@@ -322,9 +323,9 @@ class _CategorySection extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 10),
         if (categories.isEmpty)
@@ -371,7 +372,8 @@ class _CategorySection extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => _confirmDelete(
-                      onConfirm: () => categoryController.deleteCategory(category.id),
+                      onConfirm: () =>
+                          categoryController.deleteCategory(category.id),
                     ),
                     icon: const Icon(Icons.delete_outline),
                   ),

@@ -5,6 +5,7 @@ import '../../../controllers/shared_expense_controller.dart';
 import '../../../utils/formatters.dart';
 import '../../../widgets/app_text_field.dart';
 import '../../../widgets/primary_button.dart';
+import 'edit_history_sheet.dart';
 
 class SharedExpenseFormSheet extends StatelessWidget {
   final SharedExpenseController controller;
@@ -58,6 +59,17 @@ class SharedExpenseFormSheet extends StatelessWidget {
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                       ),
+                      if (controller.editingExpense.value != null && controller.editingExpense.value!.editHistory.isNotEmpty)
+                        IconButton(
+                          onPressed: () {
+                            Get.bottomSheet(
+                              EditHistorySheet(expense: controller.editingExpense.value!),
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                            );
+                          },
+                          icon: const Icon(Icons.history_rounded),
+                        ),
                       IconButton(
                         onPressed: Get.back,
                         icon: const Icon(Icons.close_rounded),

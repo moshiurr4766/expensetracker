@@ -74,7 +74,10 @@ class AuthController extends GetxController {
         password: signUpPasswordController.text,
         name: signUpNameController.text,
       );
-      await _saveSession(credential.user, providedName: signUpNameController.text.trim());
+      await _saveSession(
+        credential.user,
+        providedName: signUpNameController.text.trim(),
+      );
       AppSnackbar.success('Account created successfully');
       Get.offAllNamed(Routes.dashboard);
     } on FirebaseAuthException catch (e) {
@@ -98,12 +101,14 @@ class AuthController extends GetxController {
 
   Future<void> _saveSession(User? user, {String? providedName}) async {
     if (user == null) return;
-    
+
     String finalName = providedName ?? user.displayName ?? '';
-    
+
     if (finalName.isEmpty) {
       final existingData = await _userInfoService.getUserInfo(user.uid);
-      if (existingData != null && existingData['name'] != null && existingData['name'].toString().isNotEmpty) {
+      if (existingData != null &&
+          existingData['name'] != null &&
+          existingData['name'].toString().isNotEmpty) {
         finalName = existingData['name'] as String;
       } else {
         finalName = user.email?.split('@').first ?? 'User';
@@ -111,12 +116,8 @@ class AuthController extends GetxController {
     }
 
     final email = user.email ?? '';
-    
-    await _storage.saveSession(
-      uid: user.uid,
-      email: email,
-      name: finalName,
-    );
+
+    await _storage.saveSession(uid: user.uid, email: email, name: finalName);
 
     await _userInfoService.createOrUpdateUser(
       uid: user.uid,

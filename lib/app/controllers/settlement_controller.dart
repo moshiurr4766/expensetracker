@@ -28,7 +28,9 @@ class SettlementController extends GetxController {
             )
             .toList();
       case 'year':
-        return records.where((item) => item.createdAt.year == now.year).toList();
+        return records
+            .where((item) => item.createdAt.year == now.year)
+            .toList();
       default:
         return records;
     }
@@ -68,7 +70,13 @@ class SettlementController extends GetxController {
     isSaving.value = true;
     try {
       await _dashboardController.saveSettlementSummary(currentPreview);
-      Get.back();
+      Navigator.pop(Get.context!);
+      AppSnackbar.success('Settlement saved to history');
+    } catch (error) {
+      Navigator.pop(Get.context!);
+      AppSnackbar.error(
+        AppSnackbar.fromException(error, 'Unable to save settlement'),
+      );
     } finally {
       isSaving.value = false;
     }

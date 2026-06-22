@@ -6,8 +6,8 @@ class TransactionTile extends StatelessWidget {
   final String amount;
   final IconData icon;
   final Color color;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const TransactionTile({
     super.key,
@@ -16,8 +16,8 @@ class TransactionTile extends StatelessWidget {
     required this.amount,
     required this.icon,
     required this.color,
-    required this.onEdit,
-    required this.onDelete,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -68,16 +68,18 @@ class TransactionTile extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  IconButton(
-                    onPressed: onEdit,
-                    icon: const Icon(Icons.edit_outlined, size: 20),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  IconButton(
-                    onPressed: onDelete,
-                    icon: const Icon(Icons.delete_outline, size: 20),
-                    visualDensity: VisualDensity.compact,
-                  ),
+                  if (onEdit != null)
+                    IconButton(
+                      onPressed: onEdit,
+                      icon: const Icon(Icons.edit_outlined, size: 20),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  if (onDelete != null)
+                    IconButton(
+                      onPressed: onDelete,
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      visualDensity: VisualDensity.compact,
+                    ),
                 ],
               ),
             ],

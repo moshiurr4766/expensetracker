@@ -25,4 +25,19 @@ class UserInfoService {
     final doc = await _userInfoRef.doc(uid).get();
     return doc.data();
   }
+
+  Future<List<Map<String, dynamic>>> searchUsers(String query) async {
+    final lowerQuery = query.toLowerCase().trim();
+    if (lowerQuery.isEmpty) return [];
+
+    // Simple search by retrieving all and filtering in-memory
+    // For large scale apps, Algolia or equivalent is needed, but this works for small scale.
+    final snapshot = await _userInfoRef.get();
+    
+    return snapshot.docs.map((doc) => doc.data()).where((data) {
+      final email = (data['email'] as String? ?? '').toLowerCase();
+      final name = (data['name'] as String? ?? '').toLowerCase();
+      return email.contains(lowerQuery) || name.contains(lowerQuery);
+    }).toList();
+  }
 }

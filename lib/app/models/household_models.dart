@@ -6,6 +6,7 @@ class HouseholdPersonModel {
   final String name;
   final double initialContribution;
   final String profileInfo;
+  final String accessLevel;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -15,6 +16,7 @@ class HouseholdPersonModel {
     required this.name,
     required this.initialContribution,
     required this.profileInfo,
+    this.accessLevel = 'view',
     required this.createdAt,
     required this.updatedAt,
   });
@@ -33,6 +35,7 @@ class HouseholdPersonModel {
       initialContribution:
           (data['initialContribution'] as num? ?? 0).toDouble(),
       profileInfo: data['profileInfo'] as String? ?? '',
+      accessLevel: data['accessLevel'] as String? ?? 'view',
       createdAt: readDate(data['createdAt']),
       updatedAt: readDate(data['updatedAt']),
     );
@@ -82,6 +85,7 @@ class SettlementSummary {
   final double averageShare;
   final List<SettlementPersonBalance> balances;
   final List<SettlementTransfer> transfers;
+  final List<Map<String, dynamic>> expenses;
 
   const SettlementSummary({
     required this.startDate,
@@ -91,6 +95,7 @@ class SettlementSummary {
     required this.averageShare,
     required this.balances,
     required this.transfers,
+    required this.expenses,
   });
 }
 
@@ -104,6 +109,7 @@ class SettlementHistoryModel {
   final double averageShare;
   final List<SettlementPersonBalance> balances;
   final List<SettlementTransfer> transfers;
+  final List<Map<String, dynamic>> expenses;
   final DateTime createdAt;
 
   const SettlementHistoryModel({
@@ -116,6 +122,7 @@ class SettlementHistoryModel {
     required this.averageShare,
     required this.balances,
     required this.transfers,
+    required this.expenses,
     required this.createdAt,
   });
 
@@ -131,6 +138,7 @@ class SettlementHistoryModel {
 
     final balancesRaw = data['balances'] as List<dynamic>? ?? const [];
     final transfersRaw = data['transfers'] as List<dynamic>? ?? const [];
+    final expensesRaw = data['expenses'] as List<dynamic>? ?? const [];
 
     return SettlementHistoryModel(
       id: id,
@@ -159,6 +167,9 @@ class SettlementHistoryModel {
               amount: (item['amount'] as num? ?? 0).toDouble(),
             ),
           )
+          .toList(),
+      expenses: expensesRaw
+          .map((item) => Map<String, dynamic>.from(item as Map))
           .toList(),
       createdAt: readDate(data['createdAt']),
     );

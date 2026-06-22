@@ -177,8 +177,9 @@ class SharedExpenseService {
     required double amount,
     required String note,
     required DateTime date,
+    List<Map<String, dynamic>>? editHistory,
   }) {
-    return _sharedExpensesRef(uid).doc(id).update({
+    final Map<String, dynamic> data = {
       'title': title.trim(),
       'categoryId': categoryId,
       'categoryName': categoryName,
@@ -188,46 +189,36 @@ class SharedExpenseService {
       'note': note.trim(),
       'date': Timestamp.fromDate(date),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    };
+    if (editHistory != null) {
+      data['editHistory'] = editHistory;
+    }
+    return _sharedExpensesRef(uid).doc(id).update(data);
   }
 
   Future<void> deleteSharedExpense({required String uid, required String id}) {
     return _sharedExpensesRef(uid).doc(id).delete();
   }
 
-  Future<String> addPerson({
-    required String uid,
-    required String name,
-    required double initialContribution,
-    required String profileInfo,
-  }) async {
-    final doc = await _peopleRef(uid).add({
+  Future<void> savePerson(String uid, HouseholdPersonModel person) {
+    return _peopleRef(uid).doc(person.id).set({
       'uid': uid,
-      'name': name.trim(),
-      'initialContribution': initialContribution,
-      'profileInfo': profileInfo.trim(),
-      'createdAt': FieldValue.serverTimestamp(),
+      'name': person.name.trim(),
+      'initialContribution': person.initialContribution,
+      'profileInfo': person.profileInfo.trim(),
+      'accessLevel': person.accessLevel,
+      'createdAt': person.createdAt == DateTime.fromMillisecondsSinceEpoch(0) 
+          ? FieldValue.serverTimestamp() 
+          : Timestamp.fromDate(person.createdAt),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
-    return doc.id;
+    }, SetOptions(merge: true));
   }
 
-  Future<void> updatePerson({
-    required String uid,
-    required String id,
-    required String name,
-    required double initialContribution,
-    required String profileInfo,
-  }) {
-    return _peopleRef(uid).doc(id).update({
-      'name': name.trim(),
-      'initialContribution': initialContribution,
-      'profileInfo': profileInfo.trim(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+  Future<void> updatePersonAccessLevel(String uid, String personId, String accessLevel) {
+    return _peopleRef(uid).doc(personId).update({'accessLevel': accessLevel});
   }
 
-  Future<void> deletePerson({required String uid, required String id}) {
+  Future<void> deletePerson(String uid, String id) {
     return _peopleRef(uid).doc(id).delete();
   }
 
@@ -235,7 +226,12 @@ class SharedExpenseService {
     required String uid,
     required SettlementSummary summary,
   }) async {
-    final doc = await _settlementHistoryRef(uid).add({
+    final batch = _db.batch();
+    
+    // Create new settlement history document
+    final docRef = _settlementHistoryRef(uid).doc();
+    
+    batch.set(docRef, {
       'uid': uid,
       'startDate': Timestamp.fromDate(summary.startDate),
       'endDate': Timestamp.fromDate(summary.endDate),
@@ -258,8 +254,26 @@ class SharedExpenseService {
                 'amount': item.amount,
               })
           .toList(),
+      'expenses': summary.expenses.map((e) {
+        final Map<String, dynamic> data = Map<String, dynamic>.from(e);
+        if (data['date'] is DateTime) {
+           data['date'] = Timestamp.fromDate(data['date'] as DateTime);
+        }
+        return data;
+      }).toList(),
       'createdAt': FieldValue.serverTimestamp(),
     });
-    return doc.id;
+
+    // Delete archived expenses
+    for (final expense in summary.expenses) {
+      final expenseId = expense['id'] as String?;
+      if (expenseId != null && expenseId.isNotEmpty) {
+        final expenseRef = _sharedExpensesRef(uid).doc(expenseId);
+        batch.delete(expenseRef);
+      }
+    }
+
+    await batch.commit();
+    return docRef.id;
   }
 }

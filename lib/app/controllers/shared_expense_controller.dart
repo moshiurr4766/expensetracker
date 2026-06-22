@@ -45,7 +45,8 @@ class SharedExpenseController extends GetxController {
     amountController.text = expense?.amount.toStringAsFixed(2) ?? '';
     noteController.text = expense?.note ?? '';
     selectedCategoryId.value =
-        expense?.categoryId ?? (categories.isNotEmpty ? categories.first.id : null);
+        expense?.categoryId ??
+        (categories.isNotEmpty ? categories.first.id : null);
     selectedPaidByPersonId.value =
         expense?.paidByPersonId ?? (people.isNotEmpty ? people.first.id : null);
     selectedDate.value = expense?.date ?? DateTime.now();
@@ -81,12 +82,17 @@ class SharedExpenseController extends GetxController {
       final uid = _authService.currentUser?.uid ?? '';
       if (uid.isEmpty) throw Exception('No active session');
 
+      final householdUid = _dashboardController.activeHouseholdUid.value;
+      if (householdUid.isEmpty) throw Exception('No active household selected');
+
       final amount = double.parse(amountController.text.trim());
       final expense = editingExpense.value;
 
+      final editorName = _authService.currentUser?.displayName ?? 'Unknown';
+
       if (expense == null) {
         await _sharedExpenseService.addSharedExpense(
-          uid: uid,
+          uid: householdUid,
           title: titleController.text,
           categoryId: category.id,
           categoryName: category.name,
@@ -96,10 +102,22 @@ class SharedExpenseController extends GetxController {
           note: noteController.text,
           date: selectedDate.value,
         );
+        Navigator.pop(Get.context!);
         AppSnackbar.success('Shared expense added successfully');
       } else {
+        final List<Map<String, dynamic>> newHistory = List.from(
+          expense.editHistory,
+        );
+        newHistory.add({
+          'editorUid': uid,
+          'editorName': editorName,
+          'timestamp': DateTime.now(),
+          'changes':
+              'Expense updated (Amount: $amount, Category: ${category.name})',
+        });
+
         await _sharedExpenseService.updateSharedExpense(
-          uid: uid,
+          uid: householdUid,
           id: expense.id,
           title: titleController.text,
           categoryId: category.id,
@@ -109,11 +127,12 @@ class SharedExpenseController extends GetxController {
           amount: amount,
           note: noteController.text,
           date: selectedDate.value,
+          editHistory: newHistory,
         );
+        Navigator.pop(Get.context!);
         AppSnackbar.success('Shared expense updated successfully');
       }
 
-      Get.back();
       clearForm();
     } catch (error) {
       AppSnackbar.error(
@@ -125,10 +144,13 @@ class SharedExpenseController extends GetxController {
   }
 
   Future<void> deleteExpense(String id) async {
-    final uid = _authService.currentUser?.uid ?? '';
-    if (uid.isEmpty) return;
+    final householdUid = _dashboardController.activeHouseholdUid.value;
+    if (householdUid.isEmpty) return;
     try {
-      await _sharedExpenseService.deleteSharedExpense(uid: uid, id: id);
+      await _sharedExpenseService.deleteSharedExpense(
+        uid: householdUid,
+        id: id,
+      );
       AppSnackbar.success('Shared expense deleted successfully');
     } catch (_) {
       AppSnackbar.error('Unable to delete shared expense');
@@ -140,7 +162,9 @@ class SharedExpenseController extends GetxController {
     titleController.clear();
     amountController.clear();
     noteController.clear();
-    selectedCategoryId.value = categories.isNotEmpty ? categories.first.id : null;
+    selectedCategoryId.value = categories.isNotEmpty
+        ? categories.first.id
+        : null;
     selectedPaidByPersonId.value = people.isNotEmpty ? people.first.id : null;
     selectedDate.value = DateTime.now();
   }

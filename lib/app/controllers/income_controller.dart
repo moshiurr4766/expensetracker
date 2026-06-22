@@ -76,6 +76,7 @@ class IncomeController extends GetxController {
           note: note,
           date: selectedDate.value,
         );
+        Navigator.pop(Get.context!);
         AppSnackbar.success('Income added successfully');
       } else {
         await _personalExpenseService.updateIncome(
@@ -87,9 +88,9 @@ class IncomeController extends GetxController {
           note: note,
           date: selectedDate.value,
         );
+        Navigator.pop(Get.context!);
         AppSnackbar.success('Income updated successfully');
       }
-      Get.back();
       clearForm();
     } catch (e) {
       AppSnackbar.error(AppSnackbar.fromException(e, 'Unable to save income'));

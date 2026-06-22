@@ -74,6 +74,7 @@ class SharedExpenseModel {
   final DateTime date;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final List<Map<String, dynamic>> editHistory;
 
   const SharedExpenseModel({
     required this.id,
@@ -88,6 +89,7 @@ class SharedExpenseModel {
     required this.date,
     required this.createdAt,
     required this.updatedAt,
+    this.editHistory = const [],
   });
 
   factory SharedExpenseModel.fromMap(String id, Map<String, dynamic> data) {
@@ -96,6 +98,15 @@ class SharedExpenseModel {
       if (value is DateTime) return value;
       return DateTime.now();
     }
+
+    final editHistoryRaw = data['editHistory'] as List<dynamic>? ?? const [];
+    final parsedEditHistory = editHistoryRaw.map((e) {
+      final map = Map<String, dynamic>.from(e as Map);
+      if (map['timestamp'] is Timestamp) {
+        map['timestamp'] = (map['timestamp'] as Timestamp).toDate();
+      }
+      return map;
+    }).toList();
 
     return SharedExpenseModel(
       id: id,
@@ -110,6 +121,7 @@ class SharedExpenseModel {
       date: readDate(data['date']),
       createdAt: readDate(data['createdAt']),
       updatedAt: readDate(data['updatedAt']),
+      editHistory: parsedEditHistory,
     );
   }
 }

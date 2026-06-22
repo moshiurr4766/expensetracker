@@ -81,6 +81,7 @@ class ExpenseController extends GetxController {
           note: noteController.text,
           date: selectedDate.value,
         );
+        Navigator.pop(Get.context!);
         AppSnackbar.success('Expense added successfully');
       } else {
         await _personalExpenseService.updateExpense(
@@ -93,10 +94,10 @@ class ExpenseController extends GetxController {
           note: noteController.text,
           date: selectedDate.value,
         );
+        Navigator.pop(Get.context!);
         AppSnackbar.success('Expense updated successfully');
       }
 
-      Get.back();
       clearForm();
     } catch (error) {
       AppSnackbar.error(AppSnackbar.fromException(error, 'Unable to save expense'));

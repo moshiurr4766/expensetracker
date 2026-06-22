@@ -5,6 +5,7 @@ import '../../../controllers/settlement_controller.dart';
 import '../../../utils/formatters.dart';
 import '../../../widgets/empty_state.dart';
 import '../../../widgets/section_header.dart';
+import '../widgets/settlement_detail_sheet.dart';
 
 class SettlementTab extends StatelessWidget {
   const SettlementTab({super.key});
@@ -52,49 +53,66 @@ class SettlementTab extends StatelessWidget {
             )
           else
             ...controller.filteredHistory.map(
-              (item) => Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${AppFormatters.shortDate.format(item.startDate)} - ${AppFormatters.shortDate.format(item.endDate)}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+              (item) => GestureDetector(
+                onTap: () {
+                  Get.bottomSheet(
+                    SettlementDetailSheet(settlement: item),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${AppFormatters.shortDate.format(item.startDate)} - ${AppFormatters.shortDate.format(item.endDate)}',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Created ${AppFormatters.shortDate.format(item.createdAt)}',
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Total expense ${AppFormatters.currency.format(item.totalExpense)} | Avg share ${AppFormatters.currency.format(item.averageShare)}',
-                    ),
-                    const SizedBox(height: 10),
-                    ...item.balances.map(
-                      (balance) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Text(
-                          '${balance.name}: paid ${AppFormatters.currency.format(balance.paidAmount)}, balance ${AppFormatters.currency.format(balance.balanceAmount)}',
+                      const SizedBox(height: 4),
+                      Text(
+                        'Created ${AppFormatters.shortDate.format(item.createdAt)}',
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Total expense ${AppFormatters.currency.format(item.totalExpense)} | Avg share ${AppFormatters.currency.format(item.averageShare)}',
+                      ),
+                      const SizedBox(height: 10),
+                      ...item.balances.map(
+                        (balance) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text(
+                            '${balance.name}: paid ${AppFormatters.currency.format(balance.paidAmount)}, balance ${AppFormatters.currency.format(balance.balanceAmount)}',
+                          ),
                         ),
                       ),
-                    ),
-                    if (item.transfers.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      ...item.transfers.map(
-                        (transfer) => Text(
-                          '${transfer.fromPerson} -> ${transfer.toPerson}: ${AppFormatters.currency.format(transfer.amount)}',
+                      if (item.transfers.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        ...item.transfers.map(
+                          (transfer) => Text(
+                            '${transfer.fromPerson} -> ${transfer.toPerson}: ${AppFormatters.currency.format(transfer.amount)}',
+                          ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),

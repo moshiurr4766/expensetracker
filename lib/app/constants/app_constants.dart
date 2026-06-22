@@ -8,6 +8,7 @@ class AppConstants {
   static const keyLastArchivedMonth = 'last_archived_month';
 
   static const userInfoCollection = 'userInfo';
+  static const invitesCollection = 'invites';
   static const personalExpenseCollection = 'personalExpense';
   static const sharedExpenseCollection = 'sharedExpense';
 

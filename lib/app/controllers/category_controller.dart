@@ -118,7 +118,7 @@ class CategoryController extends GetxController {
         }
       }
 
-      Get.back();
+      Navigator.pop(Get.context!);
       clearForm();
       AppSnackbar.success(
         category == null

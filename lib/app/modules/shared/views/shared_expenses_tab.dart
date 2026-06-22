@@ -21,10 +21,37 @@ class SharedExpensesTab extends StatelessWidget {
       () => ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Total shared expense',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  AppFormatters.currency.format(dashboard.sharedExpenses.fold<double>(0, (sum, item) => sum + item.amount)),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
           SectionHeader(
             title: 'Shared expenses',
-            actionLabel: 'Add',
-            onAction: () => expenseController.openForm(),
+            actionLabel: dashboard.canEditSharedExpenses ? 'Add' : null,
+            onAction: dashboard.canEditSharedExpenses ? () => expenseController.openForm() : null,
           ),
           const SizedBox(height: 8),
           if (dashboard.sharedExpenses.isEmpty)
@@ -44,10 +71,10 @@ class SharedExpensesTab extends StatelessWidget {
                 amount: AppFormatters.currency.format(expense.amount),
                 icon: AppIconMapper.byName(category?.icon ?? 'category'),
                 color: color,
-                onEdit: () => expenseController.openForm(expense),
-                onDelete: () => _confirmDelete(
+                onEdit: dashboard.canEditSharedExpenses ? () => expenseController.openForm(expense) : null,
+                onDelete: dashboard.canEditSharedExpenses ? () => _confirmDelete(
                   onConfirm: () => expenseController.deleteExpense(expense.id),
-                ),
+                ) : null,
               );
             }),
         ],

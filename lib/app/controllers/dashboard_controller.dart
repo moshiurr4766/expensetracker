@@ -14,6 +14,7 @@ import '../services/personal_expense_service.dart';
 import '../services/shared_expense_service.dart';
 import '../services/local_storage_service.dart';
 import '../utils/app_snackbar.dart';
+import 'invite_controller.dart';
 
 class DashboardController extends GetxController {
   final _authService = Get.find<AuthService>();
@@ -22,6 +23,11 @@ class DashboardController extends GetxController {
 
   final isLoading = true.obs;
   final selectedIndex = 0.obs;
+  
+  // Collaboration / Household switching
+  final activeHouseholdUid = ''.obs;
+  final activeHouseholdName = 'My Shared Household'.obs;
+
   final expenses = <ExpenseModel>[].obs;
   final sharedExpenses = <SharedExpenseModel>[].obs;
   final incomes = <IncomeModel>[].obs;
@@ -64,6 +70,9 @@ class DashboardController extends GetxController {
     }
 
     try {
+      activeHouseholdUid.value = currentUid;
+      activeHouseholdName.value = 'My Shared Household';
+
       await _personalExpenseService.ensureDefaultCategories(currentUid);
       await _sharedExpenseService.ensureDefaultCategories(currentUid);
       await _archiveIfMonthChanged(currentUid);
@@ -85,24 +94,16 @@ class DashboardController extends GetxController {
         await _personalExpenseService.watchMonthlyArchives(currentUid).first,
       );
 
+      _bindSharedStreams(activeHouseholdUid.value);
+
       _personalExpenseService.watchCategories(currentUid).listen((pCats) {
-        _sharedExpenseService.watchCategories(currentUid).first.then((sCats) {
-          categories.assignAll([...pCats, ...sCats]);
-        });
-      });
-      _sharedExpenseService.watchCategories(currentUid).listen((sCats) {
-        _personalExpenseService.watchCategories(currentUid).first.then((pCats) {
+        _sharedExpenseService.watchCategories(activeHouseholdUid.value).first.then((sCats) {
           categories.assignAll([...pCats, ...sCats]);
         });
       });
 
       expenses.bindStream(_personalExpenseService.watchExpenses(currentUid));
-      sharedExpenses.bindStream(_sharedExpenseService.watchSharedExpenses(currentUid));
       incomes.bindStream(_personalExpenseService.watchIncomes(currentUid));
-      people.bindStream(_sharedExpenseService.watchPeople(currentUid));
-      settlementHistory.bindStream(
-        _sharedExpenseService.watchSettlementHistory(currentUid),
-      );
       monthlyArchives.bindStream(_personalExpenseService.watchMonthlyArchives(currentUid));
     } catch (error) {
       AppSnackbar.error(
@@ -111,6 +112,77 @@ class DashboardController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  StreamSubscription? _sCatsSub;
+  StreamSubscription? _sExpensesSub;
+  StreamSubscription? _sPeopleSub;
+  StreamSubscription? _sSettlementSub;
+
+  void _bindSharedStreams(String householdUid) {
+    _sCatsSub?.cancel();
+    _sExpensesSub?.cancel();
+    _sPeopleSub?.cancel();
+    _sSettlementSub?.cancel();
+
+    _sCatsSub = _sharedExpenseService.watchCategories(householdUid).listen((sCats) {
+      _personalExpenseService.watchCategories(uid).first.then((pCats) {
+        categories.assignAll([...pCats, ...sCats]);
+      });
+    });
+
+    _sExpensesSub = _sharedExpenseService.watchSharedExpenses(householdUid).listen((data) {
+      sharedExpenses.assignAll(data);
+    });
+
+    _sPeopleSub = _sharedExpenseService.watchPeople(householdUid).listen((data) {
+      final ownerPerson = HouseholdPersonModel(
+        id: householdUid,
+        uid: householdUid,
+        name: householdUid == uid 
+            ? (_authService.currentUser?.displayName ?? 'Me') 
+            : activeHouseholdName.value.replaceAll("'s Household", ""),
+        initialContribution: 0,
+        profileInfo: 'Owner',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      final list = data.where((p) => p.id != householdUid).toList();
+      list.insert(0, ownerPerson);
+      people.assignAll(list);
+    });
+
+    _sSettlementSub = _sharedExpenseService.watchSettlementHistory(householdUid).listen((data) {
+      settlementHistory.assignAll(data);
+    });
+  }
+
+  bool get canEditSharedExpenses {
+    if (activeHouseholdUid.value == uid) return true;
+    // For non-owners, check invite access level
+    try {
+      final inviteCtrl = Get.find<InviteController>();
+      final invite = inviteCtrl.acceptedInvites.firstWhereOrNull(
+        (i) => i.ownerUid == activeHouseholdUid.value
+      );
+      return invite?.accessLevel == 'edit';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void switchHousehold(String householdUid, String name) {
+    if (activeHouseholdUid.value == householdUid) return;
+    
+    activeHouseholdUid.value = householdUid;
+    activeHouseholdName.value = name;
+    
+    sharedExpenses.clear();
+    people.clear();
+    settlementHistory.clear();
+    
+    _bindSharedStreams(householdUid);
   }
 
   Future<String> _resolveUid() async {
@@ -165,6 +237,51 @@ class DashboardController extends GetxController {
       incomes: existingIncomes,
     );
     await storage.saveLastArchivedMonth(currentMonthKey);
+  }
+
+  Future<void> archiveSelectedRange({
+    required DateTime startDate,
+    required DateTime endDate,
+    required String label,
+  }) async {
+    final currentUid = uid;
+    if (currentUid.isEmpty) {
+      throw Exception('No active session');
+    }
+
+    final scopedExpenses = expenses.where((expense) {
+      final expenseDate = DateTime(
+        expense.date.year,
+        expense.date.month,
+        expense.date.day,
+      );
+      final start = DateTime(startDate.year, startDate.month, startDate.day);
+      final end = DateTime(endDate.year, endDate.month, endDate.day);
+      return !expenseDate.isBefore(start) && !expenseDate.isAfter(end);
+    }).toList();
+
+    final scopedIncomes = incomes.where((income) {
+      final incomeDate = DateTime(
+        income.date.year,
+        income.date.month,
+        income.date.day,
+      );
+      final start = DateTime(startDate.year, startDate.month, startDate.day);
+      final end = DateTime(endDate.year, endDate.month, endDate.day);
+      return !incomeDate.isBefore(start) && !incomeDate.isAfter(end);
+    }).toList();
+
+    if (scopedExpenses.isEmpty && scopedIncomes.isEmpty) {
+      throw Exception('No records found in the selected range.');
+    }
+
+    await _personalExpenseService.archiveMonthlyLedger(
+      uid: currentUid,
+      monthKey: 'custom_${DateTime.now().millisecondsSinceEpoch}',
+      monthLabel: label,
+      expenses: scopedExpenses,
+      incomes: scopedIncomes,
+    );
   }
 
   List<CategoryModel> categoriesForType(String type) {
@@ -252,6 +369,17 @@ class DashboardController extends GetxController {
       averageShare: averageShare,
       balances: balances,
       transfers: transfers,
+      expenses: scopedExpenses.map((e) => {
+        'id': e.id,
+        'title': e.title,
+        'categoryId': e.categoryId,
+        'categoryName': e.categoryName,
+        'paidByPersonId': e.paidByPersonId,
+        'paidByPersonName': e.paidByPersonName,
+        'amount': e.amount,
+        'note': e.note,
+        'date': e.date,
+      }).toList(),
     );
   }
 
@@ -326,20 +454,11 @@ class DashboardController extends GetxController {
   }
 
   Future<void> saveSettlementSummary(SettlementSummary summary) async {
-    final currentUid = uid;
-    if (currentUid.isEmpty) {
-      AppSnackbar.error('Session expired. Please sign in again.');
-      return;
+    final householdUid = activeHouseholdUid.value;
+    if (householdUid.isEmpty) {
+      throw Exception('No active household selected');
     }
-
-    try {
-      await _sharedExpenseService.addSettlementHistory(uid: currentUid, summary: summary);
-      AppSnackbar.success('Settlement saved to history');
-    } catch (error) {
-      AppSnackbar.error(
-        AppSnackbar.fromException(error, 'Unable to save settlement'),
-      );
-    }
+    await _sharedExpenseService.addSettlementHistory(uid: householdUid, summary: summary);
   }
 
   void _recalculate() {
