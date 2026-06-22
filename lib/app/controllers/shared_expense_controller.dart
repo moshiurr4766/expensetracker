@@ -6,14 +6,14 @@ import '../models/expense_model.dart';
 import '../models/household_models.dart';
 import '../modules/shared/widgets/shared_expense_form_sheet.dart';
 import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
+import '../services/shared_expense_service.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
 import 'dashboard_controller.dart';
 
 class SharedExpenseController extends GetxController {
   final _authService = Get.find<AuthService>();
-  final _firestoreService = Get.find<FirestoreService>();
+  final _sharedExpenseService = Get.find<SharedExpenseService>();
   final _dashboardController = Get.find<DashboardController>();
 
   final formKey = GlobalKey<FormState>();
@@ -85,7 +85,7 @@ class SharedExpenseController extends GetxController {
       final expense = editingExpense.value;
 
       if (expense == null) {
-        await _firestoreService.addSharedExpense(
+        await _sharedExpenseService.addSharedExpense(
           uid: uid,
           title: titleController.text,
           categoryId: category.id,
@@ -98,7 +98,7 @@ class SharedExpenseController extends GetxController {
         );
         AppSnackbar.success('Shared expense added successfully');
       } else {
-        await _firestoreService.updateSharedExpense(
+        await _sharedExpenseService.updateSharedExpense(
           uid: uid,
           id: expense.id,
           title: titleController.text,
@@ -128,7 +128,7 @@ class SharedExpenseController extends GetxController {
     final uid = _authService.currentUser?.uid ?? '';
     if (uid.isEmpty) return;
     try {
-      await _firestoreService.deleteSharedExpense(uid: uid, id: id);
+      await _sharedExpenseService.deleteSharedExpense(uid: uid, id: id);
       AppSnackbar.success('Shared expense deleted successfully');
     } catch (_) {
       AppSnackbar.error('Unable to delete shared expense');

@@ -57,17 +57,17 @@ class ProfileTab extends StatelessWidget {
             onExpense: () => categoryController.openForm(null, 'expense'),
             onShared: () => categoryController.openForm(null, 'shared'),
           ),
+          // const SizedBox(height: 24),
+          // SectionHeader(
+          //   title: 'Categories',
+          //   actionLabel: 'Add',
+          //   onAction: () => _showTypeChooser(
+          //     onIncome: () => categoryController.openForm(null, 'income'),
+          //     onExpense: () => categoryController.openForm(null, 'expense'),
+          //     onShared: () => categoryController.openForm(null, 'shared'),
+          //   ),
+          // ),
           const SizedBox(height: 24),
-          SectionHeader(
-            title: 'Categories',
-            actionLabel: 'Add',
-            onAction: () => _showTypeChooser(
-              onIncome: () => categoryController.openForm(null, 'income'),
-              onExpense: () => categoryController.openForm(null, 'expense'),
-              onShared: () => categoryController.openForm(null, 'shared'),
-            ),
-          ),
-          const SizedBox(height: 8),
           _CategorySection(
             title: 'Income categories',
             categories: dashboard.categoriesForType('income'),

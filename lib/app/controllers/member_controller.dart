@@ -4,14 +4,14 @@ import 'package:get/get.dart';
 import '../models/household_models.dart';
 import '../modules/members/widgets/member_form_sheet.dart';
 import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
+import '../services/shared_expense_service.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
 import 'dashboard_controller.dart';
 
 class MemberController extends GetxController {
   final _authService = Get.find<AuthService>();
-  final _firestoreService = Get.find<FirestoreService>();
+  final _sharedExpenseService = Get.find<SharedExpenseService>();
   final _dashboardController = Get.find<DashboardController>();
 
   final formKey = GlobalKey<FormState>();
@@ -55,7 +55,7 @@ class MemberController extends GetxController {
       final member = editingMember.value;
 
       if (member == null) {
-        await _firestoreService.addPerson(
+        await _sharedExpenseService.addPerson(
           uid: uid,
           name: nameController.text,
           initialContribution: contribution,
@@ -63,7 +63,7 @@ class MemberController extends GetxController {
         );
         AppSnackbar.success('Member added successfully');
       } else {
-        await _firestoreService.updatePerson(
+        await _sharedExpenseService.updatePerson(
           uid: uid,
           id: member.id,
           name: nameController.text,
@@ -95,7 +95,7 @@ class MemberController extends GetxController {
     }
 
     try {
-      await _firestoreService.deletePerson(uid: uid, id: id);
+      await _sharedExpenseService.deletePerson(uid: uid, id: id);
       AppSnackbar.success('Member deleted successfully');
     } catch (_) {
       AppSnackbar.error('Unable to delete member');

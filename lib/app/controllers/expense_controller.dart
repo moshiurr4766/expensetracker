@@ -5,14 +5,14 @@ import '../models/category_model.dart';
 import '../models/expense_model.dart';
 import '../modules/expense/widgets/expense_form_sheet.dart';
 import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
+import '../services/personal_expense_service.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
 import 'dashboard_controller.dart';
 
 class ExpenseController extends GetxController {
   final _authService = Get.find<AuthService>();
-  final _firestoreService = Get.find<FirestoreService>();
+  final _personalExpenseService = Get.find<PersonalExpenseService>();
   final _dashboardController = Get.find<DashboardController>();
 
   final formKey = GlobalKey<FormState>();
@@ -72,7 +72,7 @@ class ExpenseController extends GetxController {
       final expense = editingExpense.value;
 
       if (expense == null) {
-        await _firestoreService.addExpense(
+        await _personalExpenseService.addExpense(
           uid: uid,
           title: titleController.text,
           categoryId: category.id,
@@ -83,7 +83,7 @@ class ExpenseController extends GetxController {
         );
         AppSnackbar.success('Expense added successfully');
       } else {
-        await _firestoreService.updateExpense(
+        await _personalExpenseService.updateExpense(
           uid: uid,
           id: expense.id,
           title: titleController.text,
@@ -109,7 +109,7 @@ class ExpenseController extends GetxController {
     final uid = _authService.currentUser?.uid ?? '';
     if (uid.isEmpty) return;
     try {
-      await _firestoreService.deleteExpense(uid: uid, id: id);
+      await _personalExpenseService.deleteExpense(uid: uid, id: id);
       AppSnackbar.success('Expense deleted successfully');
     } catch (_) {
       AppSnackbar.error('Unable to delete expense');

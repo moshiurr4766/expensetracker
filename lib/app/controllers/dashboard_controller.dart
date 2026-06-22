@@ -10,13 +10,15 @@ import '../models/household_models.dart';
 import '../models/income_model.dart';
 import '../routes/app_routes.dart';
 import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
+import '../services/personal_expense_service.dart';
+import '../services/shared_expense_service.dart';
 import '../services/local_storage_service.dart';
 import '../utils/app_snackbar.dart';
 
 class DashboardController extends GetxController {
   final _authService = Get.find<AuthService>();
-  final _firestoreService = Get.find<FirestoreService>();
+  final _personalExpenseService = Get.find<PersonalExpenseService>();
+  final _sharedExpenseService = Get.find<SharedExpenseService>();
 
   final isLoading = true.obs;
   final selectedIndex = 0.obs;
@@ -62,31 +64,46 @@ class DashboardController extends GetxController {
     }
 
     try {
-      await _firestoreService.ensureDefaultCategories(currentUid);
+      await _personalExpenseService.ensureDefaultCategories(currentUid);
+      await _sharedExpenseService.ensureDefaultCategories(currentUid);
       await _archiveIfMonthChanged(currentUid);
-      categories.assignAll(await _firestoreService.watchCategories(currentUid).first);
-      expenses.assignAll(await _firestoreService.watchExpenses(currentUid).first);
+
+      final pCategories = await _personalExpenseService.watchCategories(currentUid).first;
+      final sCategories = await _sharedExpenseService.watchCategories(currentUid).first;
+      categories.assignAll([...pCategories, ...sCategories]);
+
+      expenses.assignAll(await _personalExpenseService.watchExpenses(currentUid).first);
       sharedExpenses.assignAll(
-        await _firestoreService.watchSharedExpenses(currentUid).first,
+        await _sharedExpenseService.watchSharedExpenses(currentUid).first,
       );
-      incomes.assignAll(await _firestoreService.watchIncomes(currentUid).first);
-      people.assignAll(await _firestoreService.watchPeople(currentUid).first);
+      incomes.assignAll(await _personalExpenseService.watchIncomes(currentUid).first);
+      people.assignAll(await _sharedExpenseService.watchPeople(currentUid).first);
       settlementHistory.assignAll(
-        await _firestoreService.watchSettlementHistory(currentUid).first,
+        await _sharedExpenseService.watchSettlementHistory(currentUid).first,
       );
       monthlyArchives.assignAll(
-        await _firestoreService.watchMonthlyArchives(currentUid).first,
+        await _personalExpenseService.watchMonthlyArchives(currentUid).first,
       );
 
-      categories.bindStream(_firestoreService.watchCategories(currentUid));
-      expenses.bindStream(_firestoreService.watchExpenses(currentUid));
-      sharedExpenses.bindStream(_firestoreService.watchSharedExpenses(currentUid));
-      incomes.bindStream(_firestoreService.watchIncomes(currentUid));
-      people.bindStream(_firestoreService.watchPeople(currentUid));
+      _personalExpenseService.watchCategories(currentUid).listen((pCats) {
+        _sharedExpenseService.watchCategories(currentUid).first.then((sCats) {
+          categories.assignAll([...pCats, ...sCats]);
+        });
+      });
+      _sharedExpenseService.watchCategories(currentUid).listen((sCats) {
+        _personalExpenseService.watchCategories(currentUid).first.then((pCats) {
+          categories.assignAll([...pCats, ...sCats]);
+        });
+      });
+
+      expenses.bindStream(_personalExpenseService.watchExpenses(currentUid));
+      sharedExpenses.bindStream(_sharedExpenseService.watchSharedExpenses(currentUid));
+      incomes.bindStream(_personalExpenseService.watchIncomes(currentUid));
+      people.bindStream(_sharedExpenseService.watchPeople(currentUid));
       settlementHistory.bindStream(
-        _firestoreService.watchSettlementHistory(currentUid),
+        _sharedExpenseService.watchSettlementHistory(currentUid),
       );
-      monthlyArchives.bindStream(_firestoreService.watchMonthlyArchives(currentUid));
+      monthlyArchives.bindStream(_personalExpenseService.watchMonthlyArchives(currentUid));
     } catch (error) {
       AppSnackbar.error(
         AppSnackbar.fromException(error, 'Unable to load dashboard data'),
@@ -121,8 +138,8 @@ class DashboardController extends GetxController {
     final currentMonthKey = DateFormat('yyyy-MM').format(DateTime.now());
     if (storage.lastArchivedMonth == currentMonthKey) return;
 
-    final existingIncomes = await _firestoreService.watchIncomes(uid).first;
-    final existingExpenses = await _firestoreService.watchExpenses(uid).first;
+    final existingIncomes = await _personalExpenseService.watchIncomes(uid).first;
+    final existingExpenses = await _personalExpenseService.watchExpenses(uid).first;
     final hasStaleData = existingIncomes.any(
           (item) => DateFormat('yyyy-MM').format(item.date) != currentMonthKey,
         ) ||
@@ -140,7 +157,7 @@ class DashboardController extends GetxController {
       return;
     }
 
-    await _firestoreService.archiveMonthlyLedger(
+    await _personalExpenseService.archiveMonthlyLedger(
       uid: uid,
       monthKey: currentMonthKey,
       monthLabel: DateFormat('MMMM yyyy').format(DateTime.now()),
@@ -316,7 +333,7 @@ class DashboardController extends GetxController {
     }
 
     try {
-      await _firestoreService.addSettlementHistory(uid: currentUid, summary: summary);
+      await _sharedExpenseService.addSettlementHistory(uid: currentUid, summary: summary);
       AppSnackbar.success('Settlement saved to history');
     } catch (error) {
       AppSnackbar.error(
@@ -329,8 +346,9 @@ class DashboardController extends GetxController {
     final totalIncome = incomes.fold<double>(0, (sum, item) => sum + item.amount);
     final totalExpense = expenses.fold<double>(0, (sum, item) => sum + item.amount);
     final totalContributions = totalInitialContribution();
+    final sharedTotalExpense = sharedExpenses.fold<double>(0, (sum, item) => sum + item.amount);
     final pendingSettlementAmount = settlementHistory.isEmpty
-        ? totalExpense
+        ? sharedTotalExpense
         : settlementHistory.first.transfers.fold<double>(
             0,
             (sum, item) => sum + item.amount,
@@ -347,7 +365,7 @@ class DashboardController extends GetxController {
     summary.value = DashboardSummary(
       totalIncome: totalIncome,
       totalExpense: totalExpense,
-      balance: totalContributions + totalIncome - totalExpense,
+      balance: totalIncome - totalExpense,
       totalContributions: totalContributions,
       pendingSettlementAmount: pendingSettlementAmount,
       highestExpenseCategory: highestExpenseCategory,

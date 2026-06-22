@@ -5,12 +5,14 @@ import 'package:get/get.dart';
 import '../routes/app_routes.dart';
 import '../services/auth_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/user_info_service.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
 
 class AuthController extends GetxController {
   final _authService = Get.find<AuthService>();
   final _storage = Get.find<LocalStorageService>();
+  final _userInfoService = Get.find<UserInfoService>();
 
   final signInFormKey = GlobalKey<FormState>();
   final signUpFormKey = GlobalKey<FormState>();
@@ -72,7 +74,7 @@ class AuthController extends GetxController {
         password: signUpPasswordController.text,
         name: signUpNameController.text,
       );
-      await _saveSession(credential.user);
+      await _saveSession(credential.user, providedName: signUpNameController.text.trim());
       AppSnackbar.success('Account created successfully');
       Get.offAllNamed(Routes.dashboard);
     } on FirebaseAuthException catch (e) {
@@ -94,12 +96,32 @@ class AuthController extends GetxController {
     await _storage.markOnboardingSeen();
   }
 
-  Future<void> _saveSession(User? user) async {
+  Future<void> _saveSession(User? user, {String? providedName}) async {
     if (user == null) return;
+    
+    String finalName = providedName ?? user.displayName ?? '';
+    
+    if (finalName.isEmpty) {
+      final existingData = await _userInfoService.getUserInfo(user.uid);
+      if (existingData != null && existingData['name'] != null && existingData['name'].toString().isNotEmpty) {
+        finalName = existingData['name'] as String;
+      } else {
+        finalName = user.email?.split('@').first ?? 'User';
+      }
+    }
+
+    final email = user.email ?? '';
+    
     await _storage.saveSession(
       uid: user.uid,
-      email: user.email ?? '',
-      name: user.displayName ?? user.email?.split('@').first ?? 'User',
+      email: email,
+      name: finalName,
+    );
+
+    await _userInfoService.createOrUpdateUser(
+      uid: user.uid,
+      email: email,
+      name: finalName,
     );
   }
 

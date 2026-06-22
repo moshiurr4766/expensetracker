@@ -7,14 +7,20 @@ class AppConstants {
   static const keySessionName = 'session_name';
   static const keyLastArchivedMonth = 'last_archived_month';
 
-  static const usersCollection = 'users';
-  static const categoriesCollection = 'categories';
+  static const userInfoCollection = 'userInfo';
+  static const personalExpenseCollection = 'personalExpense';
+  static const sharedExpenseCollection = 'sharedExpense';
+
+  // Subcollections for personalExpense
   static const expensesCollection = 'expenses';
-  static const sharedExpensesCollection = 'shared_expenses';
   static const incomesCollection = 'incomes';
+  static const categoriesCollection = 'categories';
+  static const monthlyArchiveCollection = 'monthly_history';
+
+  // Subcollections for sharedExpense
+  static const sharedExpensesCollection = 'shared_expenses';
   static const peopleCollection = 'people';
   static const settlementHistoryCollection = 'settlement_history';
-  static const monthlyArchiveCollection = 'monthly_history';
 }
 
 class Routes {

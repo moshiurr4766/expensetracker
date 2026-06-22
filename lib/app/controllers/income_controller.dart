@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../models/category_model.dart';
 import '../models/income_model.dart';
 import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
+import '../services/personal_expense_service.dart';
 import '../modules/income/widgets/income_form_sheet.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
@@ -12,7 +12,7 @@ import 'dashboard_controller.dart';
 
 class IncomeController extends GetxController {
   final _authService = Get.find<AuthService>();
-  final _firestoreService = Get.find<FirestoreService>();
+  final _personalExpenseService = Get.find<PersonalExpenseService>();
   final _dashboardController = Get.find<DashboardController>();
 
   final formKey = GlobalKey<FormState>();
@@ -68,7 +68,7 @@ class IncomeController extends GetxController {
       final income = editingIncome.value;
 
       if (income == null) {
-        await _firestoreService.addIncome(
+        await _personalExpenseService.addIncome(
           uid: uid,
           categoryId: category.id,
           categoryName: category.name,
@@ -78,7 +78,7 @@ class IncomeController extends GetxController {
         );
         AppSnackbar.success('Income added successfully');
       } else {
-        await _firestoreService.updateIncome(
+        await _personalExpenseService.updateIncome(
           uid: uid,
           id: income.id,
           categoryId: category.id,
@@ -102,7 +102,7 @@ class IncomeController extends GetxController {
     final uid = _authService.currentUser?.uid ?? '';
     if (uid.isEmpty) return;
     try {
-      await _firestoreService.deleteIncome(uid: uid, id: id);
+      await _personalExpenseService.deleteIncome(uid: uid, id: id);
       AppSnackbar.success('Income deleted successfully');
     } catch (_) {
       AppSnackbar.error('Unable to delete income');

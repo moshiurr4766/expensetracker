@@ -4,14 +4,16 @@ import 'package:get/get.dart';
 import '../models/category_model.dart';
 import '../modules/category/widgets/category_form_sheet.dart';
 import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
+import '../services/personal_expense_service.dart';
+import '../services/shared_expense_service.dart';
 import '../utils/app_snackbar.dart';
 import '../utils/validators.dart';
 import 'dashboard_controller.dart';
 
 class CategoryController extends GetxController {
   final _authService = Get.find<AuthService>();
-  final _firestoreService = Get.find<FirestoreService>();
+  final _personalExpenseService = Get.find<PersonalExpenseService>();
+  final _sharedExpenseService = Get.find<SharedExpenseService>();
   final _dashboardController = Get.find<DashboardController>();
 
   final formKey = GlobalKey<FormState>();
@@ -79,21 +81,41 @@ class CategoryController extends GetxController {
 
       final category = editingCategory.value;
       if (category == null) {
-        await _firestoreService.addCategory(
-          uid: uid,
-          name: nameController.text,
-          type: selectedType.value,
-          icon: selectedIcon.value,
-          colorValue: selectedColor.value,
-        );
+        if (selectedType.value == 'shared') {
+          await _sharedExpenseService.addCategory(
+            uid: uid,
+            name: nameController.text,
+            type: selectedType.value,
+            icon: selectedIcon.value,
+            colorValue: selectedColor.value,
+          );
+        } else {
+          await _personalExpenseService.addCategory(
+            uid: uid,
+            name: nameController.text,
+            type: selectedType.value,
+            icon: selectedIcon.value,
+            colorValue: selectedColor.value,
+          );
+        }
       } else {
-        await _firestoreService.updateCategory(
-          uid: uid,
-          id: category.id,
-          name: nameController.text,
-          icon: selectedIcon.value,
-          colorValue: selectedColor.value,
-        );
+        if (category.type == 'shared') {
+          await _sharedExpenseService.updateCategory(
+            uid: uid,
+            id: category.id,
+            name: nameController.text,
+            icon: selectedIcon.value,
+            colorValue: selectedColor.value,
+          );
+        } else {
+          await _personalExpenseService.updateCategory(
+            uid: uid,
+            id: category.id,
+            name: nameController.text,
+            icon: selectedIcon.value,
+            colorValue: selectedColor.value,
+          );
+        }
       }
 
       Get.back();
@@ -117,7 +139,14 @@ class CategoryController extends GetxController {
     if (uid.isEmpty) return;
 
     try {
-      await _firestoreService.deleteCategory(uid: uid, id: id);
+      final category = categories.firstWhereOrNull((c) => c.id == id);
+      if (category != null) {
+        if (category.type == 'shared') {
+          await _sharedExpenseService.deleteCategory(uid: uid, id: id);
+        } else {
+          await _personalExpenseService.deleteCategory(uid: uid, id: id);
+        }
+      }
       AppSnackbar.success('Category deleted successfully');
     } catch (_) {
       AppSnackbar.error('Unable to delete category');

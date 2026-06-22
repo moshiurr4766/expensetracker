@@ -7,7 +7,35 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId}/{document=**} {
+    match /userInfo/{userId}/{document=**} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.id == userId;
+      allow update: if request.auth != null
+          && request.auth.uid == userId
+          && resource.data.id == userId
+          && request.resource.data.id == userId;
+      allow delete: if request.auth != null
+          && request.auth.uid == userId
+          && resource.data.id == userId;
+    }
+    
+    match /personalExpense/{userId}/{document=**} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.uid == userId;
+      allow update: if request.auth != null
+          && request.auth.uid == userId
+          && resource.data.uid == userId
+          && request.resource.data.uid == userId;
+      allow delete: if request.auth != null
+          && request.auth.uid == userId
+          && resource.data.uid == userId;
+    }
+
+    match /sharedExpense/{userId}/{document=**} {
       allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null
           && request.auth.uid == userId
