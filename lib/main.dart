@@ -22,7 +22,7 @@ class ExpenseTrackerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Expense Tracker',
+      title: 'Expense Tracker s',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       initialBinding: InitialBinding(),
