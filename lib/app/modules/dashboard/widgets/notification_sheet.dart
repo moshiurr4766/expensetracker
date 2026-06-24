@@ -11,7 +11,7 @@ class NotificationSheet extends StatelessWidget {
     final controller = Get.find<NotificationController>();
 
     return Container(
-      height: Get.height * 0.8,
+      height: MediaQuery.of(context).size.height * 0.6,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),

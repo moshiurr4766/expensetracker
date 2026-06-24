@@ -31,13 +31,7 @@ class DashboardView extends GetView<DashboardController> {
               'Profile',
             ][controller.selectedIndex.value],
           ),
-          actions: [
-            IconButton(
-              tooltip: 'Sign out',
-              onPressed: Get.find<AuthController>().signOut,
-              icon: const Icon(Icons.logout_rounded),
-            ),
-          ],
+
         ),
         body: controller.isLoading.value
             ? const Center(child: CircularProgressIndicator())

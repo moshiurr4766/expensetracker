@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../controllers/dashboard_controller.dart';
 import '../../../controllers/invite_controller.dart';
-import '../../../models/invite_model.dart';
+
 import '../../../utils/formatters.dart';
 import '../../../widgets/empty_state.dart';
 import '../../../widgets/section_header.dart';

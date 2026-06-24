@@ -29,7 +29,7 @@ class NotificationService extends GetxService {
       'actorName': actorName,
       'actionType': actionType,
       'message': message,
-      if (householdUid != null) 'householdUid': householdUid,
+      'householdUid': ?householdUid,
       'isRead': false,
       'createdAt': FieldValue.serverTimestamp(),
     });

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../models/notification_model.dart';
 import '../services/auth_service.dart';
@@ -80,7 +81,7 @@ class NotificationController extends GetxController {
         }
       }
     } catch (e) {
-      print('Failed to send notifications: $e');
+      debugPrint('Error marking notifications read: $e');
     }
   }
 
@@ -104,7 +105,7 @@ class NotificationController extends GetxController {
         householdUid: currentUser.uid,
       );
     } catch (e) {
-      print('Failed to send notification: $e');
+      debugPrint('Error marking all as read: $e');
     }
   }
 }

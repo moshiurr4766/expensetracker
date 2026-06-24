@@ -9,13 +9,12 @@ import '../services/invite_service.dart';
 import '../services/shared_expense_service.dart';
 import '../services/user_info_service.dart';
 import '../utils/app_snackbar.dart';
-import 'dashboard_controller.dart';
 
 class InviteController extends GetxController {
   final _authService = Get.find<AuthService>();
   final _inviteService = Get.find<InviteService>();
   final _userInfoService = Get.find<UserInfoService>();
-  final _dashboardController = Get.find<DashboardController>();
+
   final _sharedExpenseService = Get.find<SharedExpenseService>();
 
   final incomingInvites = <InviteModel>[].obs;

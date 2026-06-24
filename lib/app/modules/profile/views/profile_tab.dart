@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../controllers/auth_controller.dart';
 import '../../../controllers/category_controller.dart';
 import '../../../controllers/dashboard_controller.dart';
 import '../../../models/category_model.dart';
@@ -9,7 +10,6 @@ import '../../../theme/app_colors.dart';
 import '../../../utils/formatters.dart';
 import '../../../utils/icon_mapper.dart';
 import '../../../widgets/empty_state.dart';
-import '../../../widgets/section_header.dart';
 import '../../../widgets/summary_card.dart';
 
 class ProfileTab extends StatelessWidget {
@@ -82,64 +82,11 @@ class ProfileTab extends StatelessWidget {
             title: 'Shared feature categories',
             categories: dashboard.categoriesForType('shared'),
           ),
+          const SizedBox(height: 32),
+          const _LogoutButton(),
+          const SizedBox(height: 16),
         ],
       ),
-    );
-  }
-
-  void _showTypeChooser({
-    required VoidCallback onIncome,
-    required VoidCallback onExpense,
-    required VoidCallback onShared,
-  }) {
-    Get.bottomSheet(
-      Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _ChoiceTile(
-                icon: Icons.savings_outlined,
-                title: 'Income categories',
-                subtitle: 'Create salary, freelance, bonus and more.',
-                onTap: () {
-                  Get.back();
-                  onIncome();
-                },
-              ),
-              const SizedBox(height: 10),
-              _ChoiceTile(
-                icon: Icons.payments_outlined,
-                title: 'Expense categories',
-                subtitle: 'Create food, shopping, transport and more.',
-                onTap: () {
-                  Get.back();
-                  onExpense();
-                },
-              ),
-              const SizedBox(height: 10),
-              _ChoiceTile(
-                icon: Icons.group_work_outlined,
-                title: 'Shared feature categories',
-                subtitle:
-                    'Create rent, gas, internet and other household buckets.',
-                onTap: () {
-                  Get.back();
-                  onShared();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
     );
   }
 }
@@ -234,29 +181,48 @@ class _HubCard extends StatelessWidget {
   }
 }
 
-class _ChoiceTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
 
-  const _ChoiceTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
+class _LogoutButton extends StatelessWidget {
+  const _LogoutButton();
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      tileColor: const Color(0xFFF8FAFC),
-      leading: Icon(icon),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right_rounded),
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      child: ElevatedButton.icon(
+        onPressed: _confirmLogout,
+        icon: const Icon(Icons.logout_rounded, color: Colors.white),
+        label: const Text(
+          'Log Out',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red.shade600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmLogout() {
+    Get.defaultDialog(
+      title: 'Log out?',
+      middleText: 'Are you sure you want to log out of your account?',
+      textCancel: 'Cancel',
+      textConfirm: 'Log Out',
+      confirmTextColor: Colors.white,
+      buttonColor: Colors.red.shade600,
+      onConfirm: () {
+        Get.back();
+        Get.find<AuthController>().signOut();
+      },
     );
   }
 }

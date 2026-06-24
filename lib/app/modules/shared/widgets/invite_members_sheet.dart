@@ -1,8 +1,8 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../controllers/invite_controller.dart';
-import '../../../utils/app_snackbar.dart';
 
 class InviteMembersSheet extends StatelessWidget {
   const InviteMembersSheet({super.key});
@@ -12,14 +12,14 @@ class InviteMembersSheet extends StatelessWidget {
     final inviteCtrl = Get.find<InviteController>();
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.5,
+      height: MediaQuery.of(context).size.height * 0.6,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: const EdgeInsets.all(16.0).copyWith(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
-      ),
+      padding: const EdgeInsets.all(
+        16.0,
+      ).copyWith(bottom: MediaQuery.of(context).viewInsets.bottom + 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -28,9 +28,9 @@ class InviteMembersSheet extends StatelessWidget {
             children: [
               Text(
                 'Invite Members',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.close),
@@ -49,7 +49,8 @@ class InviteMembersSheet extends StatelessWidget {
               ),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.arrow_forward),
-                onPressed: () => inviteCtrl.searchUsers(inviteCtrl.searchController.text),
+                onPressed: () =>
+                    inviteCtrl.searchUsers(inviteCtrl.searchController.text),
               ),
             ),
             onChanged: inviteCtrl.onSearchChanged,
@@ -74,7 +75,9 @@ class InviteMembersSheet extends StatelessWidget {
                   final user = inviteCtrl.searchResults[index];
                   return ListTile(
                     leading: CircleAvatar(
-                      child: Text(user['name']?.substring(0, 1).toUpperCase() ?? '?'),
+                      child: Text(
+                        user['name']?.substring(0, 1).toUpperCase() ?? '?',
+                      ),
                     ),
                     title: Text(user['name'] ?? 'Unknown'),
                     subtitle: Text(user['email'] ?? ''),
@@ -95,12 +98,17 @@ class InviteMembersSheet extends StatelessWidget {
     );
   }
 
-  void _showAccessLevelDialog(BuildContext context, InviteController ctrl, Map<String, dynamic> user) {
+  void _showAccessLevelDialog(
+    BuildContext context,
+    InviteController ctrl,
+    Map<String, dynamic> user,
+  ) {
     Get.defaultDialog(
       title: 'Access Level',
       content: Obx(
         () => Column(
           children: [
+
             RadioListTile<String>(
               title: const Text('Edit Access'),
               value: 'edit',
@@ -109,6 +117,7 @@ class InviteMembersSheet extends StatelessWidget {
                 if (val != null) ctrl.selectedAccessLevel.value = val;
               },
             ),
+
             RadioListTile<String>(
               title: const Text('View Only'),
               value: 'view',
