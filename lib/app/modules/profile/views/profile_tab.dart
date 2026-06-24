@@ -118,24 +118,27 @@ class _CategoryHub extends StatelessWidget {
           children: [
             Expanded(
               child: _HubCard(
-                icon: Icons.savings_outlined,
+                icon: Icons.savings_rounded,
                 label: 'Income',
+                color: AppColors.success,
                 onTap: onIncome,
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _HubCard(
-                icon: Icons.payments_outlined,
+                icon: Icons.payments_rounded,
                 label: 'Expense',
+                color: AppColors.danger,
                 onTap: onExpense,
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _HubCard(
-                icon: Icons.group_work_outlined,
+                icon: Icons.group_work_rounded,
                 label: 'Shared',
+                color: AppColors.seed,
                 onTap: onShared,
               ),
             ),
@@ -149,11 +152,13 @@ class _CategoryHub extends StatelessWidget {
 class _HubCard extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color color;
   final VoidCallback onTap;
 
   const _HubCard({
     required this.icon,
     required this.label,
+    required this.color,
     required this.onTap,
   });
 
@@ -161,19 +166,23 @@ class _HubCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.15)),
         ),
         child: Column(
           children: [
-            Icon(icon, color: Theme.of(context).colorScheme.primary),
+            Icon(icon, color: color, size: 28),
             const SizedBox(height: 8),
-            Text(label, textAlign: TextAlign.center),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: color.withOpacity(0.9), fontWeight: FontWeight.bold, fontSize: 13),
+            ),
           ],
         ),
       ),
@@ -200,11 +209,13 @@ class _LogoutButton extends StatelessWidget {
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.shade600,
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.red.shade600,
+          elevation: 0,
+          side: BorderSide(color: Colors.red.shade100),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
       ),
@@ -246,30 +257,87 @@ class _ProfileHeader extends StatelessWidget {
         : (user?.email?.split('@').first ?? 'Account');
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.primary.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            name,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.white.withOpacity(0.2),
+                foregroundColor: Colors.white,
+                child: Text(
+                  name.isNotEmpty ? name[0].toUpperCase() : '?',
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Welcome back,', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    Text(
+                      name,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Paid ${AppFormatters.currency.format(totalPaid)} | Pending settlement ${AppFormatters.currency.format(totalDue)} | $expenseCount expenses logged',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _StatBlock(title: 'Total Paid', value: AppFormatters.currency.format(totalPaid)),
+              _StatBlock(title: 'Pending', value: AppFormatters.currency.format(totalDue)),
+              _StatBlock(title: 'Expenses', value: '$expenseCount logged'),
+            ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _StatBlock extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const _StatBlock({required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+      ],
     );
   }
 }
@@ -307,8 +375,14 @@ class _CategorySection extends StatelessWidget {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
