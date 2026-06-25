@@ -11,128 +11,125 @@ class SignUpView extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primary.withOpacity(0.8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const Icon(Icons.person_add_alt_1_rounded, size: 64, color: Colors.white),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Create account',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Start with a simple email and password.',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.white70,
-                        ),
-                  ),
-                  const SizedBox(height: 32),
-                  Container(
-                    padding: const EdgeInsets.all(24),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header Icon
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
                     ),
-                    child: Form(
-                      key: controller.signUpFormKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          AppTextField(
-                            controller: controller.signUpNameController,
-                            label: 'Full name',
-                            prefixIcon: const Icon(Icons.person_outline),
-                            validator: controller.validateName,
-                          ),
-                          const SizedBox(height: 16),
-                          AppTextField(
-                            controller: controller.signUpEmailController,
-                            label: 'Email',
-                            keyboardType: TextInputType.emailAddress,
-                            prefixIcon: const Icon(Icons.email_outlined),
-                            validator: controller.validateEmail,
-                          ),
-                          const SizedBox(height: 16),
-                          Obx(
-                            () => AppTextField(
-                              controller: controller.signUpPasswordController,
-                              label: 'Password',
-                              obscureText: controller.obscureSignUpPassword.value,
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              validator: controller.validatePassword,
-                              suffixIcon: IconButton(
-                                onPressed: () => controller.obscureSignUpPassword.toggle(),
-                                icon: Icon(
-                                  controller.obscureSignUpPassword.value
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Obx(
-                            () => AppTextField(
-                              controller: controller.signUpConfirmPasswordController,
-                              label: 'Confirm password',
-                              obscureText: controller.obscureSignUpConfirmPassword.value,
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              validator: controller.validateConfirmPassword,
-                              suffixIcon: IconButton(
-                                onPressed: () => controller.obscureSignUpConfirmPassword.toggle(),
-                                icon: Icon(
-                                  controller.obscureSignUpConfirmPassword.value
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Obx(
-                            () => PrimaryButton(
-                              label: 'Create Account',
-                              loading: controller.isLoading.value,
-                              onPressed: controller.signUp,
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: Icon(
+                      Icons.person_add_alt_1_rounded,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 32),
+                
+                // Typography
+                Text(
+                  'Create account',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black87,
+                        letterSpacing: -0.5,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Start with a simple email and password.',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Colors.black54,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 48),
+
+                // Form
+                Form(
+                  key: controller.signUpFormKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AppTextField(
+                        controller: controller.signUpNameController,
+                        label: 'Full name',
+                        prefixIcon: const Icon(Icons.person_outline),
+                        validator: controller.validateName,
+                      ),
+                      const SizedBox(height: 20),
+                      AppTextField(
+                        controller: controller.signUpEmailController,
+                        label: 'Email',
+                        keyboardType: TextInputType.emailAddress,
+                        prefixIcon: const Icon(Icons.email_outlined),
+                        validator: controller.validateEmail,
+                      ),
+                      const SizedBox(height: 20),
+                      Obx(
+                        () => AppTextField(
+                          controller: controller.signUpPasswordController,
+                          label: 'Password',
+                          obscureText: controller.obscureSignUpPassword.value,
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          validator: controller.validatePassword,
+                          suffixIcon: IconButton(
+                            onPressed: () => controller.obscureSignUpPassword.toggle(),
+                            icon: Icon(
+                              controller.obscureSignUpPassword.value
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Obx(
+                        () => AppTextField(
+                          controller: controller.signUpConfirmPasswordController,
+                          label: 'Confirm password',
+                          obscureText: controller.obscureSignUpConfirmPassword.value,
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          validator: controller.validateConfirmPassword,
+                          suffixIcon: IconButton(
+                            onPressed: () => controller.obscureSignUpConfirmPassword.toggle(),
+                            icon: Icon(
+                              controller.obscureSignUpConfirmPassword.value
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      Obx(
+                        () => PrimaryButton(
+                          label: 'Create Account',
+                          loading: controller.isLoading.value,
+                          onPressed: controller.signUp,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),

@@ -6,7 +6,6 @@ import '../../../controllers/invite_controller.dart';
 import '../../members/views/members_tab.dart';
 import '../../settlement/views/settlement_tab.dart';
 import '../widgets/invite_members_sheet.dart';
-import '../widgets/pending_invites_sheet.dart';
 import 'shared_expenses_tab.dart';
 
 class SharedHubTab extends StatelessWidget {
@@ -22,14 +21,16 @@ class SharedHubTab extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            margin: EdgeInsets.fromLTRB(
+              16.0,
+              MediaQuery.of(context).padding.top + 12.0,
+              16.0,
+              12.0,
+            ),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                ],
+              gradient: const LinearGradient(
+                colors: [Color(0xFF7209B7), Color(0xFF4361EE)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -59,22 +60,36 @@ class SharedHubTab extends StatelessWidget {
                       uniqueInvites[invite.ownerUid] = invite.ownerName;
                     }
 
-                    final availableUids = [dashboard.uid, ...uniqueInvites.keys];
+                    final availableUids = [
+                      dashboard.uid,
+                      ...uniqueInvites.keys,
+                    ];
                     final activeUid = dashboard.activeHouseholdUid.value;
-                    final selectedValue = availableUids.contains(activeUid) ? activeUid : dashboard.uid;
+                    final selectedValue = availableUids.contains(activeUid)
+                        ? activeUid
+                        : dashboard.uid;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Active Household', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        const Text(
+                          'Active Household',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
                         DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: selectedValue.isEmpty ? null : selectedValue,
                             isExpanded: true,
                             isDense: true,
-                            dropdownColor: Theme.of(context).colorScheme.primary,
-                            icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            dropdownColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            icon: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Colors.white,
+                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
                                 ),
@@ -93,8 +108,8 @@ class SharedHubTab extends StatelessWidget {
                             onChanged: (val) {
                               if (val == null) return;
                               final name = val == dashboard.uid
-                                  ? 'My Shared Household'
-                                  : uniqueInvites[val] ?? 'Shared Household';
+                                  ? 'My Household'
+                                  : uniqueInvites[val] ?? 'Household';
                               dashboard.switchHousehold(val, name);
                             },
                           ),
@@ -103,50 +118,7 @@ class SharedHubTab extends StatelessWidget {
                     );
                   }),
                 ),
-                const SizedBox(width: 8),
-                Obx(() {
-                  final pendingCount = inviteCtrl.incomingInvites.length;
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white.withOpacity(0.2),
-                        child: IconButton(
-                          iconSize: 20,
-                          icon: const Icon(Icons.notifications_rounded, color: Colors.white),
-                          onPressed: () {
-                            Get.bottomSheet(
-                              const PendingInvitesSheet(),
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                            );
-                          },
-                        ),
-                      ),
-                      if (pendingCount > 0)
-                        Positioned(
-                          right: -2,
-                          top: -2,
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                              color: Colors.redAccent,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              pendingCount.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                }),
+
                 Obx(() {
                   if (dashboard.activeHouseholdUid.value == dashboard.uid) {
                     return Padding(
@@ -156,8 +128,13 @@ class SharedHubTab extends StatelessWidget {
                         backgroundColor: Colors.white.withOpacity(0.2),
                         child: IconButton(
                           iconSize: 20,
-                          icon: const Icon(Icons.person_add_rounded, color: Colors.white),
+                          icon: const Icon(
+                            Icons.person_add_rounded,
+                            color: Colors.white,
+                          ),
                           onPressed: () {
+                            inviteCtrl.searchController.clear();
+                            inviteCtrl.searchUsers('');
                             Get.bottomSheet(
                               const InviteMembersSheet(),
                               isScrollControlled: true,

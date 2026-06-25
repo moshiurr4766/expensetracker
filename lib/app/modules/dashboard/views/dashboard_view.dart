@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../controllers/auth_controller.dart';
 import '../../../controllers/dashboard_controller.dart';
 import '../../expense/views/expense_hub_tab.dart';
 import '../../profile/views/profile_tab.dart';
 import '../../shared/views/shared_hub_tab.dart';
 import 'overview_tab.dart';
+
+import '../../../theme/app_colors.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -22,47 +23,83 @@ class DashboardView extends GetView<DashboardController> {
 
     return Obx(
       () => Scaffold(
-        appBar: AppBar(
-          title: Text(
-            [
-              'Dashboard',
-              'Account',
-              'Shared',
-              'Profile',
-            ][controller.selectedIndex.value],
-          ),
-
-        ),
+        extendBody: true,
         body: controller.isLoading.value
             ? const Center(child: CircularProgressIndicator())
             : IndexedStack(
                 index: controller.selectedIndex.value,
                 children: tabs,
               ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: controller.selectedIndex.value,
-          onDestinationSelected: controller.changeTab,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard_rounded),
-              label: 'Home',
+        bottomNavigationBar: SafeArea(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.seed.withOpacity(0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            NavigationDestination(
-              icon: Icon(Icons.payments_outlined),
-              selectedIcon: Icon(Icons.payments_rounded),
-              label: 'Account',
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard_rounded, 'Home'),
+                _buildNavItem(1, Icons.payments_outlined, Icons.payments_rounded, 'Expense'),
+                _buildNavItem(2, Icons.group_work_outlined, Icons.group_work_rounded, 'Household'),
+                _buildNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+              ],
             ),
-            NavigationDestination(
-              icon: Icon(Icons.group_work_outlined),
-              selectedIcon: Icon(Icons.group_work_rounded),
-              label: 'Shared',
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+    final isSelected = controller.selectedIndex.value == index;
+    return GestureDetector(
+      onTap: () => controller.changeTab(index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutQuint,
+        padding: EdgeInsets.symmetric(horizontal: isSelected ? 16 : 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.seed.withOpacity(0.15) : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? AppColors.seed : AppColors.muted,
+              size: 26,
             ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded),
-              label: 'Profile',
-            ),
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.seed,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

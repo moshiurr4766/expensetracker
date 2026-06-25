@@ -103,7 +103,7 @@ class SharedExpenseController extends GetxController {
           date: selectedDate.value,
         );
         Navigator.pop(Get.context!);
-        AppSnackbar.success('Shared expense added successfully');
+        AppSnackbar.success('Household expense added successfully');
       } else {
         final List<Map<String, dynamic>> newHistory = List.from(
           expense.editHistory,
@@ -130,7 +130,7 @@ class SharedExpenseController extends GetxController {
           editHistory: newHistory,
         );
         Navigator.pop(Get.context!);
-        AppSnackbar.success('Shared expense updated successfully');
+        AppSnackbar.success('Household expense updated successfully');
       }
 
       clearForm();
@@ -151,7 +151,7 @@ class SharedExpenseController extends GetxController {
         uid: householdUid,
         id: id,
       );
-      AppSnackbar.success('Shared expense deleted successfully');
+      AppSnackbar.success('Household expense deleted successfully');
     } catch (_) {
       AppSnackbar.error('Unable to delete shared expense');
     }

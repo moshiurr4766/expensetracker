@@ -14,7 +14,7 @@ class ExpenseFormSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -55,6 +55,9 @@ class ExpenseFormSheet extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: Get.back,
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.grey.shade100,
+                        ),
                         icon: const Icon(Icons.close_rounded),
                       ),
                     ],
@@ -69,20 +72,31 @@ class ExpenseFormSheet extends StatelessWidget {
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     initialValue: selectedCategory,
-                    items: categories
-                        .map(
-                          (category) => DropdownMenuItem(
-                            value: category.id,
-                            child: Text(category.name),
-                          ),
-                        )
-                        .toList(),
+                    isExpanded: true,
+                    dropdownColor: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54),
+                    items: categories.map((category) {
+                      return DropdownMenuItem(
+                        value: category.id,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(category.name, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (value) => controller.selectedCategoryId.value = value,
                     validator: (value) =>
                         value == null ? 'Select a category' : null,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Category',
-                      prefixIcon: Icon(Icons.category_outlined),
+                      labelStyle: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.bold),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      prefixIcon: const Icon(Icons.category_rounded, color: Colors.black54),
                     ),
                   ),
                   const SizedBox(height: 14),

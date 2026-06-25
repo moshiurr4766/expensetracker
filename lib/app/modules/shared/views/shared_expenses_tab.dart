@@ -19,45 +19,69 @@ class SharedExpensesTab extends StatelessWidget {
 
     return Obx(
       () => ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
         children: [
           Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(18),
+            margin: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFEF4444), Color(0xFFF87171)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  color: const Color(0xFFEF4444).withOpacity(0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Total shared expense',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade700,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Household Expense',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Colors.white70,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        AppFormatters.currency.format(dashboard.sharedExpenses.fold<double>(0, (sum, item) => sum + item.amount)),
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  AppFormatters.currency.format(dashboard.sharedExpenses.fold<double>(0, (sum, item) => sum + item.amount)),
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
                   ),
+                  child: const Icon(Icons.group_work_rounded, color: Colors.white),
                 ),
               ],
             ),
           ),
-          SectionHeader(
-            title: 'Shared expenses',
-            actionLabel: dashboard.canEditSharedExpenses ? 'Add' : null,
-            onAction: dashboard.canEditSharedExpenses ? () => expenseController.openForm() : null,
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SectionHeader(
+              title: 'Household expenses',
+              actionLabel: dashboard.canEditSharedExpenses ? 'Add' : null,
+              onAction: dashboard.canEditSharedExpenses ? () => expenseController.openForm() : null,
+            ),
           ),
           const SizedBox(height: 8),
           if (dashboard.sharedExpenses.isEmpty)

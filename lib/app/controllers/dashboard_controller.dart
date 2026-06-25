@@ -26,7 +26,7 @@ class DashboardController extends GetxController {
   
   // Collaboration / Household switching
   final activeHouseholdUid = ''.obs;
-  final activeHouseholdName = 'My Shared Household'.obs;
+  final activeHouseholdName = 'My Household'.obs;
 
   final expenses = <ExpenseModel>[].obs;
   final sharedExpenses = <SharedExpenseModel>[].obs;
@@ -71,7 +71,7 @@ class DashboardController extends GetxController {
 
     try {
       activeHouseholdUid.value = currentUid;
-      activeHouseholdName.value = 'My Shared Household';
+      activeHouseholdName.value = 'My Household';
 
       await _personalExpenseService.ensureDefaultCategories(currentUid);
       await _sharedExpenseService.ensureDefaultCategories(currentUid);

@@ -31,6 +31,30 @@ class AppIconMapper {
         return Icons.home_rounded;
       case 'school':
         return Icons.school_rounded;
+      case 'fitness_center':
+        return Icons.fitness_center_rounded;
+      case 'flight':
+        return Icons.flight_rounded;
+      case 'local_gas_station':
+        return Icons.local_gas_station_rounded;
+      case 'local_grocery_store':
+        return Icons.local_grocery_store_rounded;
+      case 'local_hospital':
+        return Icons.local_hospital_rounded;
+      case 'movie':
+        return Icons.movie_rounded;
+      case 'pets':
+        return Icons.pets_rounded;
+      case 'train':
+        return Icons.train_rounded;
+      case 'water_drop':
+        return Icons.water_drop_rounded;
+      case 'wifi':
+        return Icons.wifi_rounded;
+      case 'coffee':
+        return Icons.coffee_rounded;
+      case 'sports_esports':
+        return Icons.sports_esports_rounded;
       case 'category':
       default:
         return Icons.category_rounded;

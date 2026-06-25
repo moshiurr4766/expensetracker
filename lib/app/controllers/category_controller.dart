@@ -37,17 +37,37 @@ class CategoryController extends GetxController {
     'card_giftcard',
     'home',
     'school',
+    'fitness_center',
+    'flight',
+    'local_gas_station',
+    'local_grocery_store',
+    'local_hospital',
+    'movie',
+    'pets',
+    'train',
+    'water_drop',
+    'wifi',
+    'coffee',
+    'sports_esports',
   ];
 
   final colorChoices = const [
-    0xFF2563EB,
-    0xFF16A34A,
-    0xFFEA580C,
-    0xFFDB2777,
-    0xFF7C3AED,
-    0xFF0F766E,
-    0xFF4B5563,
-    0xFFDC2626,
+    0xFF2563EB, // Blue
+    0xFF16A34A, // Green
+    0xFFEA580C, // Orange
+    0xFFDB2777, // Pink
+    0xFF7C3AED, // Violet
+    0xFF0F766E, // Teal
+    0xFF4B5563, // Gray
+    0xFFDC2626, // Red
+    0xFFF59E0B, // Amber
+    0xFFEAB308, // Yellow
+    0xFF84CC16, // Lime
+    0xFF06B6D4, // Cyan
+    0xFF0EA5E9, // Light Blue
+    0xFF6366F1, // Indigo
+    0xFFD946EF, // Fuchsia
+    0xFFF43F5E, // Rose
   ];
 
   List<CategoryModel> get categories => _dashboardController.categories;

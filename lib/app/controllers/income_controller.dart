@@ -121,6 +121,5 @@ class IncomeController extends GetxController {
   }
 
   String? validateAmount(String? value) => AppValidators.amount(value);
-  String? validateNote(String? value) =>
-      AppValidators.requiredField(value, label: 'Note');
+  String? validateNote(String? value) => null;
 }

@@ -64,6 +64,13 @@ class InviteService {
         throw Exception('An invite is already pending for this user.');
       } else if (status == 'accepted') {
         throw Exception('This user is already a member.');
+      } else if (status == 'rejected') {
+        await doc.reference.update({
+          'status': 'pending',
+          'accessLevel': accessLevel,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        return;
       }
     }
 

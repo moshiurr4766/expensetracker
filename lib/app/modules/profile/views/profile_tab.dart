@@ -19,10 +19,17 @@ class ProfileTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final dashboard = Get.find<DashboardController>();
     final categoryController = Get.find<CategoryController>();
+    // Start with no sections expanded, and allow multiple to be open independently
+    final RxSet<String> expandedSections = <String>{}.obs;
 
     return Obx(
       () => ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          MediaQuery.of(context).padding.top + 16,
+          16,
+          112,
+        ),
         children: [
           _ProfileHeader(
             totalPaid: dashboard.summary.value.totalContributions,
@@ -57,29 +64,28 @@ class ProfileTab extends StatelessWidget {
             onExpense: () => categoryController.openForm(null, 'expense'),
             onShared: () => categoryController.openForm(null, 'shared'),
           ),
-          // const SizedBox(height: 24),
-          // SectionHeader(
-          //   title: 'Categories',
-          //   actionLabel: 'Add',
-          //   onAction: () => _showTypeChooser(
-          //     onIncome: () => categoryController.openForm(null, 'income'),
-          //     onExpense: () => categoryController.openForm(null, 'expense'),
-          //     onShared: () => categoryController.openForm(null, 'shared'),
-          //   ),
-          // ),
           const SizedBox(height: 24),
-          _CategorySection(
+          _CollapsibleCategorySection(
             title: 'Income categories',
+            type: 'income',
+            isExpanded: expandedSections.contains('income'),
+            onToggle: () => expandedSections.contains('income') ? expandedSections.remove('income') : expandedSections.add('income'),
             categories: dashboard.categoriesForType('income'),
           ),
-          const SizedBox(height: 18),
-          _CategorySection(
+          const SizedBox(height: 12),
+          _CollapsibleCategorySection(
             title: 'Expense categories',
+            type: 'expense',
+            isExpanded: expandedSections.contains('expense'),
+            onToggle: () => expandedSections.contains('expense') ? expandedSections.remove('expense') : expandedSections.add('expense'),
             categories: dashboard.categoriesForType('expense'),
           ),
-          const SizedBox(height: 18),
-          _CategorySection(
-            title: 'Shared feature categories',
+          const SizedBox(height: 12),
+          _CollapsibleCategorySection(
+            title: 'Household categories',
+            type: 'shared',
+            isExpanded: expandedSections.contains('shared'),
+            onToggle: () => expandedSections.contains('shared') ? expandedSections.remove('shared') : expandedSections.add('shared'),
             categories: dashboard.categoriesForType('shared'),
           ),
           const SizedBox(height: 32),
@@ -137,7 +143,7 @@ class _CategoryHub extends StatelessWidget {
             Expanded(
               child: _HubCard(
                 icon: Icons.group_work_rounded,
-                label: 'Shared',
+                label: 'Household',
                 color: AppColors.seed,
                 onTap: onShared,
               ),
@@ -181,7 +187,11 @@ class _HubCard extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(color: color.withOpacity(0.9), fontWeight: FontWeight.bold, fontSize: 13),
+              style: TextStyle(
+                color: color.withOpacity(0.9),
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
             ),
           ],
         ),
@@ -189,7 +199,6 @@ class _HubCard extends StatelessWidget {
     );
   }
 }
-
 
 class _LogoutButton extends StatelessWidget {
   const _LogoutButton();
@@ -200,19 +209,16 @@ class _LogoutButton extends StatelessWidget {
       margin: const EdgeInsets.only(top: 16),
       child: ElevatedButton.icon(
         onPressed: _confirmLogout,
-        icon: const Icon(Icons.logout_rounded, color: Colors.white),
+        icon: const Icon(Icons.logout_rounded),
         label: const Text(
           'Log Out',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
-          foregroundColor: Colors.red.shade600,
+          foregroundColor: AppColors.danger,
           elevation: 0,
-          side: BorderSide(color: Colors.red.shade100),
+          side: BorderSide(color: AppColors.danger.withOpacity(0.2)),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -223,17 +229,95 @@ class _LogoutButton extends StatelessWidget {
   }
 
   void _confirmLogout() {
-    Get.defaultDialog(
-      title: 'Log out?',
-      middleText: 'Are you sure you want to log out of your account?',
-      textCancel: 'Cancel',
-      textConfirm: 'Log Out',
-      confirmTextColor: Colors.white,
-      buttonColor: Colors.red.shade600,
-      onConfirm: () {
-        Get.back();
-        Get.find<AuthController>().signOut();
-      },
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: AppColors.surface,
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.logout_rounded,
+                  color: AppColors.danger,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Log out?',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Are you sure you want to log out of your account?',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.muted, fontSize: 14),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: BorderSide(
+                          color: AppColors.muted.withOpacity(0.3),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: AppColors.text,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        Get.find<AuthController>().signOut();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.danger,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Log Out',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -259,11 +343,8 @@ class _ProfileHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.primary.withOpacity(0.8),
-          ],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF7209B7), Color(0xFF4361EE)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -287,7 +368,10 @@ class _ProfileHeader extends StatelessWidget {
                 foregroundColor: Colors.white,
                 child: Text(
                   name.isNotEmpty ? name[0].toUpperCase() : '?',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -295,10 +379,14 @@ class _ProfileHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Welcome back,', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    const Text(
+                      'Welcome back,',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
                     Text(
                       name,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
                           ),
@@ -312,8 +400,14 @@ class _ProfileHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _StatBlock(title: 'Total Paid', value: AppFormatters.currency.format(totalPaid)),
-              _StatBlock(title: 'Pending', value: AppFormatters.currency.format(totalDue)),
+              _StatBlock(
+                title: 'Total Paid',
+                value: AppFormatters.currency.format(totalPaid),
+              ),
+              _StatBlock(
+                title: 'Pending',
+                value: AppFormatters.currency.format(totalDue),
+              ),
               _StatBlock(title: 'Expenses', value: '$expenseCount logged'),
             ],
           ),
@@ -334,19 +428,38 @@ class _StatBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(
+          title,
+          style: const TextStyle(color: Colors.white70, fontSize: 12),
+        ),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
       ],
     );
   }
 }
 
-class _CategorySection extends StatelessWidget {
+class _CollapsibleCategorySection extends StatelessWidget {
   final String title;
+  final String type;
+  final bool isExpanded;
+  final VoidCallback onToggle;
   final List<CategoryModel> categories;
 
-  const _CategorySection({required this.title, required this.categories});
+  const _CollapsibleCategorySection({
+    required this.title,
+    required this.type,
+    required this.isExpanded,
+    required this.onToggle,
+    required this.categories,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -355,87 +468,199 @@ class _CategorySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 10),
-        if (categories.isEmpty)
-          const EmptyState(
-            icon: Icons.category_outlined,
-            title: 'No categories yet',
-            subtitle: 'Create categories to keep tracking organized.',
-          )
-        else
-          ...categories.map(
-            (category) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+        InkWell(
+          onTap: onToggle,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: isExpanded ? AppColors.seed.withOpacity(0.05) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: isExpanded ? AppColors.seed.withOpacity(0.3) : Colors.grey.shade200),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isExpanded ? AppColors.seed : Colors.black87,
+                        ),
                   ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Color(category.colorValue).withValues(alpha: .12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      AppIconMapper.byName(category.icon),
-                      color: Color(category.colorValue),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      category.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => categoryController.openForm(category),
-                    icon: const Icon(Icons.edit_outlined),
-                  ),
-                  IconButton(
-                    onPressed: () => _confirmDelete(
-                      onConfirm: () =>
-                          categoryController.deleteCategory(category.id),
-                    ),
-                    icon: const Icon(Icons.delete_outline),
-                  ),
-                ],
-              ),
+                ),
+                Icon(
+                  isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                  color: isExpanded ? AppColors.seed : Colors.grey,
+                ),
+              ],
             ),
           ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: isExpanded
+              ? Container(
+                  margin: const EdgeInsets.only(top: 12),
+                  child: categories.isEmpty
+                      ? const EmptyState(
+                          icon: Icons.category_outlined,
+                          title: 'No categories',
+                          subtitle: 'Tap + to add a category.',
+                        )
+                      : Column(
+                          children: categories
+                              .map(
+                                (category) => Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.04),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Color(category.colorValue).withValues(alpha: .12),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Icon(
+                                          AppIconMapper.byName(category.icon),
+                                          color: Color(category.colorValue),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          category.name,
+                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () => categoryController.openForm(category),
+                                        icon: const Icon(Icons.edit_outlined),
+                                      ),
+                                      IconButton(
+                                        onPressed: () => _confirmDelete(
+                                          onConfirm: () => categoryController.deleteCategory(category.id),
+                                        ),
+                                        icon: const Icon(Icons.delete_outline),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                )
+              : const SizedBox.shrink(),
+        ),
       ],
     );
   }
 
   void _confirmDelete({required VoidCallback onConfirm}) {
-    Get.defaultDialog(
-      title: 'Delete category?',
-      middleText: 'This action cannot be undone.',
-      textCancel: 'Cancel',
-      textConfirm: 'Delete',
-      confirmTextColor: Colors.white,
-      onConfirm: () {
-        Get.back();
-        onConfirm();
-      },
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: AppColors.surface,
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.danger,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Delete category?',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'This action cannot be undone.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.muted, fontSize: 14),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: BorderSide(
+                          color: AppColors.muted.withOpacity(0.3),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: AppColors.text,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        onConfirm();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.danger,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

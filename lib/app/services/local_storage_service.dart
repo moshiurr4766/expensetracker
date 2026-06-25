@@ -20,6 +20,10 @@ class LocalStorageService {
     await _box.write(AppConstants.keyOnboardingSeen, true);
   }
 
+  Future<void> resetOnboarding() async {
+    await _box.remove(AppConstants.keyOnboardingSeen);
+  }
+
   Future<void> saveSession({
     required String uid,
     required String email,

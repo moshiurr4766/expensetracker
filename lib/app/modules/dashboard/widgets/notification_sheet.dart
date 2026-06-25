@@ -11,7 +11,7 @@ class NotificationSheet extends StatelessWidget {
     final controller = Get.find<NotificationController>();
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -47,33 +47,38 @@ class NotificationSheet extends StatelessWidget {
   }
 
   Widget _buildHeader(NotificationController controller) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Notifications',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+    return Builder(builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Notifications',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
-          Row(
-            children: [
-              TextButton(
-                onPressed: controller.markAllAsRead,
-                child: const Text('Mark all read'),
-              ),
-              IconButton(
-                onPressed: () => Get.back(),
-                icon: const Icon(Icons.close),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+            Row(
+              children: [
+                TextButton(
+                  onPressed: controller.markAllAsRead,
+                  child: const Text('Mark all read'),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.grey.shade100,
+                  ),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildEmptyState() {

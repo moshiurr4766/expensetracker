@@ -30,25 +30,40 @@ class InviteController extends GetxController {
   StreamSubscription? _acceptedSub;
   StreamSubscription? _sentSub;
 
+  StreamSubscription? _authSub;
+
   @override
   void onInit() {
     super.onInit();
-    _bindStreams();
+    _authSub = _authService.authStateChanges.listen((user) {
+      if (user != null) {
+        _bindStreams(user.uid);
+      } else {
+        _cancelStreams();
+        incomingInvites.clear();
+        acceptedInvites.clear();
+        sentInvites.clear();
+      }
+    });
   }
 
   @override
   void onClose() {
-    _incomingSub?.cancel();
-    _acceptedSub?.cancel();
-    _sentSub?.cancel();
+    _authSub?.cancel();
+    _cancelStreams();
     searchController.dispose();
     super.onClose();
   }
 
-  void _bindStreams() {
-    final uid = _authService.currentUser?.uid;
-    if (uid == null) return;
+  void _cancelStreams() {
+    _incomingSub?.cancel();
+    _acceptedSub?.cancel();
+    _sentSub?.cancel();
+  }
 
+  void _bindStreams(String uid) {
+    _cancelStreams();
+    
     _incomingSub = _inviteService.watchIncomingInvites(uid).listen((data) {
       incomingInvites.assignAll(data);
     });
@@ -72,10 +87,6 @@ class InviteController extends GetxController {
   }
 
   Future<void> searchUsers(String query) async {
-    if (query.trim().isEmpty) {
-      searchResults.clear();
-      return;
-    }
     isSearching.value = true;
     try {
       final results = await _userInfoService.searchUsers(query);

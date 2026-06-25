@@ -28,8 +28,6 @@ class InitialBinding extends Bindings {
     Get.put(SplashController(), permanent: true);
     Get.put(AuthController(), permanent: true);
     Get.put(NotificationController(), permanent: true);
-    Get.put(DashboardController(), permanent: true);
     Get.put(InviteController(), permanent: true);
-    Get.put(ExpenseController(), permanent: true);
   }
 }

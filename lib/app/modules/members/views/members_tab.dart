@@ -7,6 +7,7 @@ import '../../../controllers/invite_controller.dart';
 import '../../../utils/formatters.dart';
 import '../../../widgets/empty_state.dart';
 import '../../../widgets/section_header.dart';
+import '../../../theme/app_colors.dart';
 
 class MembersTab extends StatelessWidget {
   const MembersTab({super.key});
@@ -20,11 +21,9 @@ class MembersTab extends StatelessWidget {
       final isOwner = dashboard.activeHouseholdUid.value == dashboard.uid;
 
       return ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
         children: [
-          const SectionHeader(
-            title: 'House members',
-          ),
+          const SectionHeader(title: 'House members'),
           const SizedBox(height: 8),
           if (isOwner)
             ..._buildOwnerList(context, dashboard, inviteCtrl)
@@ -60,7 +59,9 @@ class MembersTab extends StatelessWidget {
               offset: const Offset(0, 5),
             ),
           ],
-          border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.2)),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+          ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +78,9 @@ class MembersTab extends StatelessWidget {
                 children: [
                   Text(
                     'Me (Owner)',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -98,7 +101,7 @@ class MembersTab extends StatelessWidget {
           icon: Icons.group_outlined,
           title: 'No members yet',
           subtitle: 'Invite people to share house expenses.',
-        )
+        ),
       );
       return items;
     }
@@ -124,9 +127,16 @@ class MembersTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.primary.withOpacity(0.1),
               foregroundColor: Theme.of(context).colorScheme.primary,
-              child: Text(invite.inviteeEmail.isEmpty ? '?' : invite.inviteeEmail[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(
+                invite.inviteeEmail.isEmpty
+                    ? '?'
+                    : invite.inviteeEmail[0].toUpperCase(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -135,19 +145,24 @@ class MembersTab extends StatelessWidget {
                 children: [
                   Text(
                     invite.inviteeEmail,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: invite.status == 'accepted'
                               ? Colors.green.shade100
                               : invite.status == 'pending'
-                                  ? Colors.orange.shade100
-                                  : Colors.red.shade100,
+                              ? Colors.orange.shade100
+                              : Colors.red.shade100,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -158,8 +173,8 @@ class MembersTab extends StatelessWidget {
                             color: invite.status == 'accepted'
                                 ? Colors.green.shade800
                                 : invite.status == 'pending'
-                                    ? Colors.orange.shade800
-                                    : Colors.red.shade800,
+                                ? Colors.orange.shade800
+                                : Colors.red.shade800,
                           ),
                         ),
                       ),
@@ -204,14 +219,17 @@ class MembersTab extends StatelessWidget {
     return items;
   }
 
-  List<Widget> _buildGuestList(BuildContext context, DashboardController dashboard) {
+  List<Widget> _buildGuestList(
+    BuildContext context,
+    DashboardController dashboard,
+  ) {
     if (dashboard.people.isEmpty) {
       return [
         const EmptyState(
           icon: Icons.group_outlined,
           title: 'No members found',
           subtitle: 'There are no members in this shared household.',
-        )
+        ),
       ];
     }
 
@@ -235,9 +253,14 @@ class MembersTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.primary.withOpacity(0.1),
               foregroundColor: Theme.of(context).colorScheme.primary,
-              child: Text(member.name.isEmpty ? '?' : member.name[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(
+                member.name.isEmpty ? '?' : member.name[0].toUpperCase(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -250,26 +273,31 @@ class MembersTab extends StatelessWidget {
                       Expanded(
                         child: Text(
                           member.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                          color: member.id == dashboard.activeHouseholdUid.value 
-                              ? Colors.blue.shade100 
+                          color: member.id == dashboard.activeHouseholdUid.value
+                              ? Colors.blue.shade100
                               : Colors.purple.shade100,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          member.id == dashboard.activeHouseholdUid.value 
-                              ? 'OWNER' 
+                          member.id == dashboard.activeHouseholdUid.value
+                              ? 'OWNER'
                               : 'ACCESS: ${member.accessLevel.toUpperCase()}',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: member.id == dashboard.activeHouseholdUid.value 
-                                ? Colors.blue.shade800 
+                            color:
+                                member.id == dashboard.activeHouseholdUid.value
+                                ? Colors.blue.shade800
                                 : Colors.purple.shade800,
                           ),
                         ),
@@ -291,17 +319,73 @@ class MembersTab extends StatelessWidget {
   }
 
   void _confirmDelete({required VoidCallback onConfirm}) {
-    Get.defaultDialog(
-      title: 'Remove member?',
-      middleText: 'This will revoke their access to the shared household.',
-      textCancel: 'Cancel',
-      textConfirm: 'Remove',
-      confirmTextColor: Colors.white,
-      buttonColor: Colors.red,
-      onConfirm: () {
-        Get.back();
-        onConfirm();
-      },
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: AppColors.surface,
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.person_remove_rounded, color: AppColors.danger, size: 32),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Remove member?',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.text),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'This will revoke their access to the household. Once removed, they will no longer be able to view or add household expenses. This action cannot be undone.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.muted, height: 1.4, fontSize: 13),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        side: BorderSide(color: AppColors.muted.withOpacity(0.3)),
+                      ),
+                      child: const Text('Cancel', style: TextStyle(color: AppColors.text, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        onConfirm();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.danger,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text('Remove', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

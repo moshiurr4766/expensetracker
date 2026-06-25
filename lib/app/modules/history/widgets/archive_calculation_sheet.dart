@@ -49,7 +49,7 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -77,7 +77,10 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => Navigator.pop(Get.context!),
+                    onPressed: Get.back,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.grey.shade100,
+                    ),
                     icon: const Icon(Icons.close_rounded),
                   ),
                 ],

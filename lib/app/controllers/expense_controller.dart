@@ -41,7 +41,8 @@ class ExpenseController extends GetxController {
     amountController.text = expense?.amount.toStringAsFixed(2) ?? '';
     noteController.text = expense?.note ?? '';
     selectedCategoryId.value =
-        expense?.categoryId ?? (categories.isNotEmpty ? categories.first.id : null);
+        expense?.categoryId ??
+        (categories.isNotEmpty ? categories.first.id : null);
     selectedDate.value = expense?.date ?? DateTime.now();
 
     Get.bottomSheet(
@@ -100,7 +101,9 @@ class ExpenseController extends GetxController {
 
       clearForm();
     } catch (error) {
-      AppSnackbar.error(AppSnackbar.fromException(error, 'Unable to save expense'));
+      AppSnackbar.error(
+        AppSnackbar.fromException(error, 'Unable to save expense'),
+      );
     } finally {
       isSaving.value = false;
     }
@@ -122,7 +125,9 @@ class ExpenseController extends GetxController {
     titleController.clear();
     amountController.clear();
     noteController.clear();
-    selectedCategoryId.value = categories.isNotEmpty ? categories.first.id : null;
+    selectedCategoryId.value = categories.isNotEmpty
+        ? categories.first.id
+        : null;
     selectedDate.value = DateTime.now();
   }
 

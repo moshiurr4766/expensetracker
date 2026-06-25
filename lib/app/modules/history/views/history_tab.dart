@@ -22,7 +22,7 @@ class HistoryTab extends StatelessWidget {
 
     return Obx(
       () => ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
         children: [
           const SectionHeader(title: 'History'),
           const SizedBox(height: 16),
@@ -51,7 +51,7 @@ class HistoryTab extends StatelessWidget {
           if (includeSharedHistory) ...[
             const SizedBox(height: 20),
             Text(
-              'Shared settlement history',
+              'Household settlement history',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
