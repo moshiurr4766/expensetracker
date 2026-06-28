@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../models/analysis_models.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../../../controllers/dashboard_controller.dart';
@@ -9,6 +10,7 @@ import '../../notifications/views/notifications_view.dart';
 import '../../../theme/app_colors.dart';
 import '../../../utils/formatters.dart';
 import '../../../widgets/analysis_chart.dart';
+import '../../../widgets/analysis_line_chart.dart';
 import '../../../widgets/section_header.dart';
 
 class OverviewTab extends GetView<DashboardController> {
@@ -161,7 +163,9 @@ class OverviewTab extends GetView<DashboardController> {
                         subtitle: 'Expense Hub',
                         icon: Icons.account_balance_wallet_rounded,
                         color: Theme.of(context).colorScheme.primary,
-                        value: AppFormatters.currency.format(summary.totalExpense),
+                        value: AppFormatters.currency.format(
+                          summary.totalExpense,
+                        ),
                         onTap: () => controller.changeTab(1),
                       ),
                       const SizedBox(width: 16),
@@ -170,7 +174,9 @@ class OverviewTab extends GetView<DashboardController> {
                         subtitle: 'Household Hub',
                         icon: Icons.group_work_rounded,
                         color: const Color(0xFF7209B7),
-                        value: AppFormatters.currency.format(sharedTotalExpense),
+                        value: AppFormatters.currency.format(
+                          sharedTotalExpense,
+                        ),
                         onTap: () => controller.changeTab(2),
                       ),
                     ],
@@ -196,14 +202,88 @@ class OverviewTab extends GetView<DashboardController> {
                   icon: Icons.receipt_long_rounded,
                   label: 'Settle',
                   color: AppColors.success,
-                  onTap: () => controller.changeTab(2),
+                  onTap: () => controller.changeTab(2, sharedSubTab: 2),
                 ),
                 _QuickActionButton(
                   icon: Icons.bar_chart_rounded,
                   label: 'History',
                   color: const Color(0xFF4361EE),
-                  onTap: () => controller.changeTab(1),
+                  onTap: () => controller.changeTab(1, expenseSubTab: 2),
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // 5.5. Top Expense Bar Chart
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: SectionHeader(title: 'Top Expense'),
+          ),
+          const SizedBox(height: 12),
+          if (controller.personalCategoryPoints.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'No expenses yet.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+              ),
+            )
+          else
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.text.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: _CategoryBarChart(
+                points: controller.personalCategoryPoints,
+              ),
+            ),
+          const SizedBox(height: 32),
+
+          // 5.8. Income vs Expense Trend
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: SectionHeader(title: 'Income vs Expense Trend'),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.text.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _Legend(color: AppColors.success, label: 'Income'),
+                    const SizedBox(width: 24),
+                    _Legend(color: AppColors.danger, label: 'Expense'),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                AnalysisLineChart(points: controller.dailyPoints),
               ],
             ),
           ),
@@ -246,24 +326,84 @@ class OverviewTab extends GetView<DashboardController> {
           ),
           const SizedBox(height: 32),
 
-          // 5. Top Expense Categories
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: SectionHeader(title: 'Top Expense Categories'),
+          // 5. Income vs Expense
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Expanded(
+                  child: SectionHeader(title: 'Income vs Expense'),
+                ),
+                Obx(
+                  () => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isDense: true,
+                        value: controller.pieChartDateFilter.value,
+                        icon: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 20,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        dropdownColor: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        elevation: 6,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).primaryColor,
+                          letterSpacing: 0.5,
+                        ),
+                        onChanged: (String? newValue) {
+                          if (newValue != null)
+                            controller.pieChartDateFilter.value = newValue;
+                        },
+                        items: <String>['7d', '30d', '90d', 'yearly', 'All']
+                            .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value.toUpperCase(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              );
+                            })
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
-          if (controller.personalCategoryPoints.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'No expenses yet.',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
-              ),
-            )
-          else
-            Container(
+          Obx(() {
+            final points = controller.filteredIncomeExpensePoints;
+            if (points.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'No data yet.',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+                ),
+              );
+            }
+            return Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -271,14 +411,15 @@ class OverviewTab extends GetView<DashboardController> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.text.withOpacity(0.04),
+                    color: AppColors.text.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: _CategoryPieChart(points: controller.personalCategoryPoints),
-            ),
+              child: _CategoryPieChart(points: points),
+            );
+          }),
           const SizedBox(height: 32),
 
           // 6. Shared Member Payments (Tappable)
@@ -298,18 +439,25 @@ class OverviewTab extends GetView<DashboardController> {
               ),
             )
           else
-            ...controller.personPaymentPoints.map(
-              (point) => Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 6,
+            GestureDetector(
+              onTap: () => controller.changeTab(2),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.text.withValues(alpha: 0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: _InteractiveRowCard(
-                  title: point.name,
-                  value: AppFormatters.currency.format(point.amount),
-                  icon: Icons.person_rounded,
-                  iconColor: const Color(0xFF7209B7),
-                  onTap: () => controller.changeTab(2),
+                child: _CategoryBarChart(
+                  points: controller.personPaymentPoints,
+                  labelExtractor: (point) => point.name,
                 ),
               ),
             ),
@@ -660,6 +808,7 @@ class _Legend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 12,
@@ -669,12 +818,15 @@ class _Legend extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
           ),
         ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -693,90 +845,327 @@ class _CategoryPieChart extends StatefulWidget {
 class _CategoryPieChartState extends State<_CategoryPieChart> {
   int touchedIndex = -1;
 
+  Color _getColorForPoint(
+    dynamic point,
+    int index,
+    List<Color> fallbackColors,
+  ) {
+    final label = point.label.toString().toLowerCase();
+    if (label == 'income') return const Color(0xFF06D6A0);
+    if (label == 'expense') return const Color(0xFFEF476F);
+    return fallbackColors[index % fallbackColors.length];
+  }
+
+  @override
+  void didUpdateWidget(_CategoryPieChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (touchedIndex >= widget.points.length) {
+      touchedIndex = -1;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.points.isEmpty) return const SizedBox.shrink();
-    
-    final total = widget.points.fold<double>(0, (sum, point) => sum + point.amount);
-    
+
+    // Safety check just in case
+    if (touchedIndex >= widget.points.length) touchedIndex = -1;
+
+    final total = widget.points.fold<double>(
+      0,
+      (sum, point) => sum + point.amount,
+    );
+
+    final colors = [
+      const Color(0xFF5E60CE), // Soft Indigo
+      const Color(0xFFFF7096), // Soft Pink
+      const Color(0xFF4EA8DE), // Soft Blue
+      const Color(0xFF9D4EDD), // Soft Purple
+      const Color(0xFF06D6A0), // Vibrant Mint
+      const Color(0xFFFFD166), // Vibrant Yellow
+      const Color(0xFFEF476F), // Vibrant Pink/Red
+      const Color(0xFF118AB2), // Deep Teal
+    ];
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.points.isNotEmpty) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              widget.points.length > 3 ? 3 : widget.points.length,
+              (i) {
+                final point = widget.points[i];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: _Legend(
+                    color: _getColorForPoint(point, i, colors),
+                    label: point.label,
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+        SizedBox(
+          height: 280,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 130,
+                height: 130,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).colorScheme.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                    const BoxShadow(
+                      color: Colors.white,
+                      blurRadius: 10,
+                      spreadRadius: -5,
+                    ),
+                  ],
+                ),
+              ),
+              PieChart(
+                PieChartData(
+                  pieTouchData: PieTouchData(
+                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          if (event is FlTapUpEvent) {
+                            touchedIndex = -1;
+                          }
+                          return;
+                        }
+                        touchedIndex = pieTouchResponse
+                            .touchedSection!
+                            .touchedSectionIndex;
+                      });
+                    },
+                  ),
+                  borderData: FlBorderData(show: false),
+                  sectionsSpace: 4,
+                  centerSpaceRadius: 70,
+                  sections: List.generate(widget.points.length, (i) {
+                    final isTouched = i == touchedIndex;
+                    final radius = isTouched ? 50.0 : 35.0;
+                    final point = widget.points[i];
+                    final color = _getColorForPoint(point, i, colors);
+
+                    return PieChartSectionData(
+                      color: isTouched ? color : color.withValues(alpha: 0.6),
+                      value: point.amount,
+                      title: '',
+                      radius: radius,
+                      borderSide: isTouched
+                          ? BorderSide(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              width: 3,
+                            )
+                          : BorderSide.none,
+                      titleStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    );
+                  }),
+                ),
+                swapAnimationDuration: const Duration(milliseconds: 350),
+                swapAnimationCurve: Curves.easeOutCubic,
+              ),
+              Center(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: ScaleTransition(
+                            scale: animation,
+                            child: child,
+                          ),
+                        );
+                      },
+                  child: touchedIndex != -1
+                      ? Column(
+                          key: ValueKey(touchedIndex),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.points[touchedIndex].label,
+                              style: Theme.of(context).textTheme.labelMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade500,
+                                    letterSpacing: 0.5,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${(widget.points[touchedIndex].amount / total * 100).toStringAsFixed(1)}%',
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w900,
+                                color: _getColorForPoint(
+                                  widget.points[touchedIndex],
+                                  touchedIndex,
+                                  colors,
+                                ),
+                                height: 1.1,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              AppFormatters.currency.format(
+                                widget.points[touchedIndex].amount,
+                              ),
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          key: const ValueKey('empty'),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.touch_app_rounded,
+                              color: Colors.grey.shade400,
+                              size: 28,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap a slice\nto view details',
+
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CategoryBarChart extends StatelessWidget {
+  final List<dynamic> points;
+  final String Function(dynamic point)? labelExtractor;
+  const _CategoryBarChart({required this.points, this.labelExtractor});
+
+  @override
+  Widget build(BuildContext context) {
+    if (points.isEmpty) return const SizedBox.shrink();
+
+    final topPoints = points.take(5).toList();
+    final maxAmount = topPoints.fold<double>(
+      0.0,
+      (m, e) => e.amount > m ? e.amount : m,
+    );
+    if (maxAmount == 0) return const SizedBox.shrink();
+
     final colors = [
       const Color(0xFF4361EE),
       const Color(0xFFF72585),
       const Color(0xFF7209B7),
       const Color(0xFF3A0CA3),
       const Color(0xFF4CC9F0),
-      Colors.orange,
-      Colors.teal,
-      Colors.indigo,
     ];
 
-    return SizedBox(
-      height: 250,
-      child: Stack(
-        children: [
-          PieChart(
-            PieChartData(
-              pieTouchData: PieTouchData(
-                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                  setState(() {
-                    if (!event.isInterestedForInteractions ||
-                        pieTouchResponse == null ||
-                        pieTouchResponse.touchedSection == null) {
-                      touchedIndex = -1;
-                      return;
-                    }
-                    touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
-                  });
-                },
-              ),
-              borderData: FlBorderData(show: false),
-              sectionsSpace: 2,
-              centerSpaceRadius: 70,
-              sections: List.generate(widget.points.length, (i) {
-                final isTouched = i == touchedIndex;
-                final radius = isTouched ? 40.0 : 30.0;
-                final point = widget.points[i];
-                
-                return PieChartSectionData(
-                  color: colors[i % colors.length],
-                  value: point.amount,
-                  title: '',
-                  radius: radius,
-                  titleStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                );
-              }),
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(topPoints.length, (index) {
+        final point = topPoints[index];
+        final color = colors[index % colors.length];
+        final percentage = point.amount / maxAmount;
+
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: index == topPoints.length - 1 ? 0 : 16.0,
           ),
-          Center(
-            child: touchedIndex != -1 
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    labelExtractor != null
+                        ? labelExtractor!(point)
+                        : point.label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  Text(
+                    AppFormatters.currency.format(point.amount),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return Stack(
                     children: [
-                      Text(
-                        widget.points[touchedIndex].label,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
+                      Container(
+                        height: 14,
+                        width: constraints.maxWidth,
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${(widget.points[touchedIndex].amount / total * 100).toStringAsFixed(1)}%',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF7209B7)),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        AppFormatters.currency.format(widget.points[touchedIndex].amount),
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 600),
+                        curve: Curves.easeOutQuart,
+                        height: 14,
+                        width: constraints.maxWidth * percentage,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: color.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
-                  )
-                : const Text('Tap to view\ndetails', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }),
     );
   }
 }

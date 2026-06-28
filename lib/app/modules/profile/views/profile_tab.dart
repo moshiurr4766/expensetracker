@@ -415,7 +415,7 @@ class _ProfileHeader extends StatelessWidget {
                 title: 'Pending',
                 value: AppFormatters.currency.format(totalDue),
               ),
-              _StatBlock(title: 'Expenses', value: '$expenseCount logged'),
+              _StatBlock(title: 'Expenses', value: '$expenseCount transactions'),
             ],
           ),
         ],

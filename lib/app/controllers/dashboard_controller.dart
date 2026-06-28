@@ -37,8 +37,11 @@ class DashboardController extends GetxController {
   final monthlyArchives = <MonthlyArchiveModel>[].obs;
   final summary = DashboardSummary.initial().obs;
   final monthlyPoints = <MonthlyFinancePoint>[].obs;
+  final dailyPoints = <MonthlyFinancePoint>[].obs;
   final categoryPoints = <CategorySpendPoint>[].obs;
   final personalCategoryPoints = <CategorySpendPoint>[].obs;
+  final pieChartDateFilter = '30d'.obs;
+  final personalIncomeCategoryPoints = <CategorySpendPoint>[].obs;
   final personPaymentPoints = <PersonPaymentPoint>[].obs;
 
   String get uid => _authService.currentUser?.uid ?? '';
@@ -202,7 +205,12 @@ class DashboardController extends GetxController {
     }
   }
 
-  void changeTab(int index) {
+  final expenseTabIndex = 0.obs;
+  final sharedTabIndex = 0.obs;
+
+  void changeTab(int index, {int? expenseSubTab, int? sharedSubTab}) {
+    if (expenseSubTab != null) expenseTabIndex.value = expenseSubTab;
+    if (sharedSubTab != null) sharedTabIndex.value = sharedSubTab;
     selectedIndex.value = index;
   }
 
@@ -476,18 +484,19 @@ class DashboardController extends GetxController {
   void _recalculate() {
     final totalIncome = incomes.fold<double>(0, (sum, item) => sum + item.amount);
     final totalExpense = expenses.fold<double>(0, (sum, item) => sum + item.amount);
-    final totalContributions = totalInitialContribution();
-    final sharedTotalExpense = sharedExpenses.fold<double>(0, (sum, item) => sum + item.amount);
-    final pendingSettlementAmount = settlementHistory.isEmpty
-        ? sharedTotalExpense
-        : settlementHistory.first.transfers.fold<double>(
-            0,
-            (sum, item) => sum + item.amount,
-          );
+    final currentSettlement = calculateSettlement(
+      startDate: DateTime(2000),
+      endDate: DateTime(2100),
+    );
+    final myBalanceRecord = currentSettlement.balances.firstWhereOrNull((b) => b.personId == uid);
+    final totalContributions = myBalanceRecord?.paidAmount ?? 0.0;
+    final pendingSettlementAmount = myBalanceRecord?.balanceAmount ?? 0.0;
 
     monthlyPoints.assignAll(_buildMonthlyPoints());
+    dailyPoints.assignAll(_buildDailyPointsForCurrentMonth());
     categoryPoints.assignAll(_buildCategoryPoints());
     personalCategoryPoints.assignAll(_buildPersonalCategoryPoints());
+    personalIncomeCategoryPoints.assignAll(_buildPersonalIncomeCategoryPoints());
     personPaymentPoints.assignAll(_buildPersonPaymentPoints());
 
     final highestExpenseCategory = categoryPoints.isEmpty
@@ -528,6 +537,36 @@ class DashboardController extends GetxController {
 
       return MonthlyFinancePoint(
         label: DateFormat('MMM').format(month),
+        income: income,
+        expense: expense,
+      );
+    }).toList();
+  }
+
+  List<MonthlyFinancePoint> _buildDailyPointsForCurrentMonth() {
+    final now = DateTime.now();
+    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+    final days = List.generate(daysInMonth, (index) {
+      return DateTime(now.year, now.month, index + 1);
+    });
+
+    return days.map((day) {
+      double income = 0;
+      double expense = 0;
+
+      for (final item in incomes) {
+        if (item.date.year == day.year && item.date.month == day.month && item.date.day == day.day) {
+          income += item.amount;
+        }
+      }
+      for (final item in expenses) {
+        if (item.date.year == day.year && item.date.month == day.month && item.date.day == day.day) {
+          expense += item.amount;
+        }
+      }
+
+      return MonthlyFinancePoint(
+        label: DateFormat('d MMM').format(day),
         income: income,
         expense: expense,
       );
@@ -582,6 +621,57 @@ class DashboardController extends GetxController {
     final points = grouped.values.toList()
       ..sort((a, b) => b.amount.compareTo(a.amount));
     return points;
+  }
+
+  List<CategorySpendPoint> _buildPersonalIncomeCategoryPoints() {
+    final grouped = <String, CategorySpendPoint>{};
+    for (final income in incomes) {
+      final label = displayCategoryName(income);
+      final current = grouped[label];
+      if (current == null) {
+        grouped[label] = CategorySpendPoint(
+          label: label,
+          amount: income.amount,
+          count: 1,
+        );
+      } else {
+        grouped[label] = CategorySpendPoint(
+          label: current.label,
+          amount: current.amount + income.amount,
+          count: current.count + 1,
+        );
+      }
+    }
+
+    final points = grouped.values.toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
+    return points;
+  }
+
+  List<CategorySpendPoint> get filteredIncomeExpensePoints {
+    final now = DateTime.now();
+    DateTime? startDate;
+    switch (pieChartDateFilter.value) {
+      case '7d': startDate = now.subtract(const Duration(days: 7)); break;
+      case '30d': startDate = now.subtract(const Duration(days: 30)); break;
+      case '90d': startDate = now.subtract(const Duration(days: 90)); break;
+      case 'yearly': startDate = DateTime(now.year, 1, 1); break;
+      default: startDate = null; // All
+    }
+
+    double inc = 0;
+    for (var i in incomes) {
+      if (startDate == null || i.date.isAfter(startDate)) inc += i.amount;
+    }
+    double exp = 0;
+    for (var e in expenses) {
+      if (startDate == null || e.date.isAfter(startDate)) exp += e.amount;
+    }
+
+    final list = <CategorySpendPoint>[];
+    if (inc > 0) list.add(CategorySpendPoint(label: 'Income', amount: inc, count: 1));
+    if (exp > 0) list.add(CategorySpendPoint(label: 'Expense', amount: exp, count: 1));
+    return list;
   }
 
   List<PersonPaymentPoint> _buildPersonPaymentPoints() {
