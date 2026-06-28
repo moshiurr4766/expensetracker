@@ -14,7 +14,7 @@ class CategoryFormSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).padding.top - 60),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -23,7 +23,7 @@ class CategoryFormSheet extends StatelessWidget {
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: 20,
       ),
       child: SafeArea(
         top: false,
@@ -59,15 +59,30 @@ class CategoryFormSheet extends StatelessWidget {
                   TextFormField(
                     controller: controller.nameController,
                     validator: controller.validateName,
-                    style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Category name',
                       filled: true,
                       fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      prefixIcon: const Icon(Icons.label_outline_rounded, color: Colors.black54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.label_outline_rounded,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -76,42 +91,80 @@ class CategoryFormSheet extends StatelessWidget {
                     isExpanded: true,
                     dropdownColor: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.black54,
+                    ),
                     items: const [
                       DropdownMenuItem(
-                        value: 'expense', 
+                        value: 'expense',
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12), 
-                          child: Text('Expense', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Expense',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
                       ),
                       DropdownMenuItem(
-                        value: 'income', 
+                        value: 'income',
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12), 
-                          child: Text('Income', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Income',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
                       ),
                       DropdownMenuItem(
-                        value: 'shared', 
+                        value: 'shared',
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12), 
-                          child: Text('Shared', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Shared',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                     onChanged: controller.editingCategory.value == null
-                        ? (value) => controller.selectedType.value = value ?? 'expense'
+                        ? (value) =>
+                              controller.selectedType.value = value ?? 'expense'
                         : null,
                     decoration: InputDecoration(
                       labelText: 'Type',
-                      labelStyle: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.bold),
+                      labelStyle: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      prefixIcon: const Icon(Icons.swap_vert_rounded, color: Colors.black54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.swap_vert_rounded,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -125,39 +178,51 @@ class CategoryFormSheet extends StatelessWidget {
                   Wrap(
                     spacing: 12,
                     runSpacing: 12,
-                    children: controller.iconChoices
-                        .map((iconName) {
-                          final isSelected = controller.selectedIcon.value == iconName;
-                          return InkWell(
-                            onTap: () => controller.selectedIcon.value = iconName,
+                    children: controller.iconChoices.map((iconName) {
+                      final isSelected =
+                          controller.selectedIcon.value == iconName;
+                      return InkWell(
+                        onTap: () => controller.selectedIcon.value = iconName,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSelected ? 12 : 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.seed.withOpacity(0.15)
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: isSelected ? 12 : 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: isSelected ? AppColors.seed.withOpacity(0.15) : Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected ? Colors.transparent : Colors.grey.shade300,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (isSelected) ...[
-                                    const Icon(Icons.check_rounded, size: 16, color: AppColors.seed),
-                                    const SizedBox(width: 4),
-                                  ],
-                                  Icon(
-                                    AppIconMapper.byName(iconName), 
-                                    size: 20, 
-                                    color: isSelected ? AppColors.seed : Colors.black87,
-                                  ),
-                                ],
-                              ),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Colors.transparent
+                                  : Colors.grey.shade300,
                             ),
-                          );
-                        })
-                        .toList(),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isSelected) ...[
+                                const Icon(
+                                  Icons.check_rounded,
+                                  size: 16,
+                                  color: AppColors.seed,
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                              Icon(
+                                AppIconMapper.byName(iconName),
+                                size: 20,
+                                color: isSelected
+                                    ? AppColors.seed
+                                    : Colors.black87,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                   const SizedBox(height: 24),
                   Text(

@@ -14,7 +14,7 @@ class IncomeFormSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).padding.top - 60),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -23,7 +23,7 @@ class IncomeFormSheet extends StatelessWidget {
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: 20,
       ),
       child: SafeArea(
         top: false,
@@ -68,13 +68,22 @@ class IncomeFormSheet extends StatelessWidget {
                     isExpanded: true,
                     dropdownColor: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.black54,
+                    ),
                     items: categories.map((category) {
                       return DropdownMenuItem(
                         value: category.id,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(category.name, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                          child: Text(
+                            category.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
                       );
                     }).toList(),
@@ -84,13 +93,29 @@ class IncomeFormSheet extends StatelessWidget {
                         value == null ? 'Select a category' : null,
                     decoration: InputDecoration(
                       labelText: 'Category',
-                      labelStyle: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.bold),
+                      labelStyle: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      prefixIcon: const Icon(Icons.category_rounded, color: Colors.black54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.category_rounded,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),

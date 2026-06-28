@@ -15,7 +15,7 @@ class SharedExpenseFormSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).padding.top - 60),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -24,21 +24,23 @@ class SharedExpenseFormSheet extends StatelessWidget {
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: 20,
       ),
       child: SafeArea(
         top: false,
         child: Obx(() {
           final categories = controller.categories;
           final people = controller.people;
-          final selectedCategory = categories.any(
-            (item) => item.id == controller.selectedCategoryId.value,
-          )
+          final selectedCategory =
+              categories.any(
+                (item) => item.id == controller.selectedCategoryId.value,
+              )
               ? controller.selectedCategoryId.value
               : null;
-          final selectedPerson = people.any(
-            (item) => item.id == controller.selectedPaidByPersonId.value,
-          )
+          final selectedPerson =
+              people.any(
+                (item) => item.id == controller.selectedPaidByPersonId.value,
+              )
               ? controller.selectedPaidByPersonId.value
               : null;
 
@@ -60,11 +62,18 @@ class SharedExpenseFormSheet extends StatelessWidget {
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                       ),
-                      if (controller.editingExpense.value != null && controller.editingExpense.value!.editHistory.isNotEmpty)
+                      if (controller.editingExpense.value != null &&
+                          controller
+                              .editingExpense
+                              .value!
+                              .editHistory
+                              .isNotEmpty)
                         IconButton(
                           onPressed: () {
                             Get.bottomSheet(
-                              EditHistorySheet(expense: controller.editingExpense.value!),
+                              EditHistorySheet(
+                                expense: controller.editingExpense.value!,
+                              ),
                               isScrollControlled: true,
                               backgroundColor: Colors.transparent,
                             );
@@ -81,38 +90,58 @@ class SharedExpenseFormSheet extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  AppTextField(
-                    controller: controller.titleController,
-                    label: 'Expense title',
-                    prefixIcon: const Icon(Icons.receipt_long_rounded),
-                    validator: controller.validateTitle,
-                  ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     initialValue: selectedCategory,
                     isExpanded: true,
                     dropdownColor: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.black54,
+                    ),
                     items: controller.categories.map((category) {
                       return DropdownMenuItem(
                         value: category.id,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(category.name, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                          child: Text(
+                            category.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
                       );
                     }).toList(),
-                    onChanged: (value) => controller.selectedCategoryId.value = value,
+                    onChanged: (value) =>
+                        controller.selectedCategoryId.value = value,
                     decoration: InputDecoration(
                       labelText: 'Category',
-                      labelStyle: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.bold),
+                      labelStyle: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      prefixIcon: const Icon(Icons.category_rounded, color: Colors.black54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.category_rounded,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -121,13 +150,22 @@ class SharedExpenseFormSheet extends StatelessWidget {
                     isExpanded: true,
                     dropdownColor: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.black54,
+                    ),
                     items: people.map((person) {
                       return DropdownMenuItem(
                         value: person.id,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(person.name, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                          child: Text(
+                            person.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
                       );
                     }).toList(),
@@ -137,13 +175,29 @@ class SharedExpenseFormSheet extends StatelessWidget {
                         value == null ? 'Select who paid' : null,
                     decoration: InputDecoration(
                       labelText: 'Paid by',
-                      labelStyle: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.bold),
+                      labelStyle: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                      prefixIcon: const Icon(Icons.person_outline_rounded, color: Colors.black54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.person_outline_rounded,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class TransactionTile extends StatelessWidget {
   final String title;
   final String subtitle;
+  final String? note;
   final String amount;
   final IconData icon;
   final Color color;
@@ -13,6 +14,7 @@ class TransactionTile extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
+    this.note,
     required this.amount,
     required this.icon,
     required this.color,
@@ -58,7 +60,24 @@ class TransactionTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                if (note != null && note!.isNotEmpty)
+                  RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.bodySmall,
+                      children: [
+                        TextSpan(text: subtitle),
+                        TextSpan(
+                          text: ' • $note',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),

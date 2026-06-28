@@ -16,7 +16,6 @@ class ExpenseController extends GetxController {
   final _dashboardController = Get.find<DashboardController>();
 
   final formKey = GlobalKey<FormState>();
-  final titleController = TextEditingController();
   final amountController = TextEditingController();
   final noteController = TextEditingController();
   final selectedCategoryId = RxnString();
@@ -29,7 +28,6 @@ class ExpenseController extends GetxController {
 
   @override
   void onClose() {
-    titleController.dispose();
     amountController.dispose();
     noteController.dispose();
     super.onClose();
@@ -37,7 +35,6 @@ class ExpenseController extends GetxController {
 
   void openForm([ExpenseModel? expense]) {
     editingExpense.value = expense;
-    titleController.text = expense?.title ?? '';
     amountController.text = expense?.amount.toStringAsFixed(2) ?? '';
     noteController.text = expense?.note ?? '';
     selectedCategoryId.value =
@@ -75,7 +72,7 @@ class ExpenseController extends GetxController {
       if (expense == null) {
         await _personalExpenseService.addExpense(
           uid: uid,
-          title: titleController.text,
+          title: category.name,
           categoryId: category.id,
           categoryName: category.name,
           amount: amount,
@@ -88,7 +85,7 @@ class ExpenseController extends GetxController {
         await _personalExpenseService.updateExpense(
           uid: uid,
           id: expense.id,
-          title: titleController.text,
+          title: category.name,
           categoryId: category.id,
           categoryName: category.name,
           amount: amount,
@@ -122,7 +119,6 @@ class ExpenseController extends GetxController {
 
   void clearForm() {
     editingExpense.value = null;
-    titleController.clear();
     amountController.clear();
     noteController.clear();
     selectedCategoryId.value = categories.isNotEmpty
@@ -131,7 +127,5 @@ class ExpenseController extends GetxController {
     selectedDate.value = DateTime.now();
   }
 
-  String? validateTitle(String? value) =>
-      AppValidators.requiredField(value, label: 'Expense title');
   String? validateAmount(String? value) => AppValidators.amount(value);
 }

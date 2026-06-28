@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../models/analysis_models.dart';
+import '../services/currency_service.dart';
+import 'package:get/get.dart';
 
 class AnalysisChart extends StatelessWidget {
   final List<MonthlyFinancePoint> points;
@@ -35,7 +37,7 @@ class AnalysisChart extends StatelessWidget {
               tooltipMargin: 4,
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 return BarTooltipItem(
-                  '\$${rod.toY.toInt()}',
+                  '${Get.find<CurrencyService>().symbol}${rod.toY.toInt()}',
                   TextStyle(
                     color: rod.color,
                     fontWeight: FontWeight.bold,
@@ -68,7 +70,7 @@ class AnalysisChart extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: Text(
-                      '\$${value.toInt()}',
+                      '${Get.find<CurrencyService>().symbol}${value.toInt()}',
                       style: const TextStyle(
                         color: AppColors.muted,
                         fontSize: 10,

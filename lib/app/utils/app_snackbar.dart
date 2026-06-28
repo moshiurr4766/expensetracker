@@ -3,26 +3,62 @@ import 'package:get/get.dart';
 
 class AppSnackbar {
   static void success(String message) {
-    Get.snackbar(
-      'Success',
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF16A34A),
-      colorText: Colors.white,
-      margin: const EdgeInsets.all(16),
+    if (Get.isSnackbarOpen) Get.closeCurrentSnackbar();
+    Get.rawSnackbar(
+      messageText: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFF065F46), // Emerald 800
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: const Color(0xFFECFDF5), // Emerald 50
       borderRadius: 12,
+      margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      icon: const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 28),
+      shouldIconPulse: false,
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+      duration: const Duration(seconds: 3),
+      snackStyle: SnackStyle.FLOATING,
     );
   }
 
   static void error(String message) {
-    Get.snackbar(
-      'Error',
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFFDC2626),
-      colorText: Colors.white,
-      margin: const EdgeInsets.all(16),
+    if (Get.isSnackbarOpen) Get.closeCurrentSnackbar();
+    Get.rawSnackbar(
+      messageText: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFF991B1B), // Red 800
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: const Color(0xFFFEF2F2), // Red 50
       borderRadius: 12,
+      margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      icon: const Icon(Icons.error_rounded, color: Color(0xFFEF4444), size: 28),
+      shouldIconPulse: false,
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+      duration: const Duration(seconds: 3),
+      snackStyle: SnackStyle.FLOATING,
     );
   }
 

@@ -14,9 +14,12 @@ import '../services/invite_service.dart';
 import '../services/notification_service.dart';
 import '../controllers/notification_controller.dart';
 
+import '../services/currency_service.dart';
+
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
+    Get.put(CurrencyService(), permanent: true);
     Get.put(LocalStorageService(), permanent: true);
     Get.put(AuthService(), permanent: true);
     Get.put(UserInfoService(), permanent: true);

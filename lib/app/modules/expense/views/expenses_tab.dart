@@ -48,14 +48,17 @@ class ExpensesTab extends StatelessWidget {
                     Text(
                       'Total Expense',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.white.withOpacity(0.9),
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: Colors.white.withOpacity(0.9),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      AppFormatters.currency.format(dashboard.summary.value.totalExpense),
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      AppFormatters.currency.format(
+                        dashboard.summary.value.totalExpense,
+                      ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -95,8 +98,8 @@ class ExpensesTab extends StatelessWidget {
               final color = Color(category?.colorValue ?? 0xFFDC2626);
               return TransactionTile(
                 title: expense.title,
-                subtitle:
-                    '${dashboard.displayCategoryName(expense)} • ${AppFormatters.shortDate.format(expense.date)}${expense.note.isNotEmpty ? ' • ${expense.note}' : ''}',
+                subtitle: AppFormatters.shortDate.format(expense.date),
+                note: expense.note,
                 amount: AppFormatters.currency.format(expense.amount),
                 icon: AppIconMapper.byName(category?.icon ?? 'category'),
                 color: color,

@@ -12,7 +12,7 @@ class PersonalArchiveDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).padding.top - 60),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -26,9 +26,9 @@ class PersonalArchiveDetailSheet extends StatelessWidget {
             children: [
               Text(
                 'Archive Details',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               IconButton(
                 onPressed: Get.back,
@@ -77,9 +77,9 @@ class PersonalArchiveDetailSheet extends StatelessWidget {
         children: [
           Text(
             archive.monthLabel,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           _SummaryRow(
@@ -97,14 +97,21 @@ class PersonalArchiveDetailSheet extends StatelessWidget {
           _SummaryRow(
             label: 'Net Balance',
             value: AppFormatters.currency.format(archive.balance),
-            valueColor: archive.balance >= 0 ? Colors.green.shade700 : Colors.red.shade700,
+            valueColor: archive.balance >= 0
+                ? Colors.green.shade700
+                : Colors.red.shade700,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildListSection(BuildContext context, String title, List<Map<String, dynamic>> items, bool isIncome) {
+  Widget _buildListSection(
+    BuildContext context,
+    String title,
+    List<Map<String, dynamic>> items,
+    bool isIncome,
+  ) {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -112,9 +119,9 @@ class PersonalArchiveDetailSheet extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 12),
         ...items.map((itemMap) {
@@ -130,7 +137,7 @@ class PersonalArchiveDetailSheet extends StatelessWidget {
               date = DateTime.parse(dateObj.toString());
             } catch (_) {}
           }
-          
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Container(
@@ -160,9 +167,8 @@ class PersonalArchiveDetailSheet extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '$categoryName${date != null ? ' • ${AppFormatters.shortDate.format(date)}' : ''}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey.shade600,
-                              ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey.shade600),
                         ),
                       ],
                     ),
@@ -189,7 +195,11 @@ class _SummaryRow extends StatelessWidget {
   final String value;
   final Color? valueColor;
 
-  const _SummaryRow({required this.label, required this.value, this.valueColor});
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -198,16 +208,13 @@ class _SummaryRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
         ),
         Text(
           value,
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: valueColor,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w700, color: valueColor),
         ),
       ],
     );

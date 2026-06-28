@@ -335,19 +335,31 @@ class MembersTab extends StatelessWidget {
                   color: AppColors.danger.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_remove_rounded, color: AppColors.danger, size: 32),
+                child: const Icon(
+                  Icons.person_remove_rounded,
+                  color: AppColors.danger,
+                  size: 32,
+                ),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Remove member?',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.text),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
               ),
               const SizedBox(height: 8),
               const Text(
                 'This will revoke their access to the household. Once removed, they will no longer be able to view or add household expenses. This action cannot be undone.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.muted, height: 1.4, fontSize: 13),
+                style: TextStyle(
+                  color: AppColors.muted,
+                  height: 1.4,
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(height: 24),
               Row(
@@ -357,10 +369,20 @@ class MembersTab extends StatelessWidget {
                       onPressed: () => Get.back(),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        side: BorderSide(color: AppColors.muted.withOpacity(0.3)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: BorderSide(
+                          color: AppColors.muted.withOpacity(0.3),
+                        ),
                       ),
-                      child: const Text('Cancel', style: TextStyle(color: AppColors.text, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: AppColors.text,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -375,9 +397,14 @@ class MembersTab extends StatelessWidget {
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      child: const Text('Remove', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Remove',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],

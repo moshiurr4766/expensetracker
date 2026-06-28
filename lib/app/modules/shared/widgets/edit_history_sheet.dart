@@ -14,7 +14,7 @@ class EditHistorySheet extends StatelessWidget {
     final history = expense.editHistory.reversed.toList();
 
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).padding.top - 60),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -23,7 +23,7 @@ class EditHistorySheet extends StatelessWidget {
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: 20,
       ),
       child: SafeArea(
         top: false,
@@ -36,7 +36,9 @@ class EditHistorySheet extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Edit History',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -52,9 +54,7 @@ class EditHistorySheet extends StatelessWidget {
             if (history.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(32.0),
-                child: Center(
-                  child: Text('No edit history available.'),
-                ),
+                child: Center(child: Text('No edit history available.')),
               )
             else
               ConstrainedBox(
@@ -71,7 +71,9 @@ class EditHistorySheet extends StatelessWidget {
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text('Edited by ${edit['editorName']}'),
-                      subtitle: Text('${edit['changes']}\n${AppFormatters.shortDate.format(date)}'),
+                      subtitle: Text(
+                        '${edit['changes']}\n${AppFormatters.shortDate.format(date)}',
+                      ),
                       isThreeLine: true,
                     );
                   },

@@ -10,12 +10,13 @@ class ArchiveCalculationSheet extends StatefulWidget {
   const ArchiveCalculationSheet({super.key});
 
   @override
-  State<ArchiveCalculationSheet> createState() => _ArchiveCalculationSheetState();
+  State<ArchiveCalculationSheet> createState() =>
+      _ArchiveCalculationSheetState();
 }
 
 class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
   final DashboardController controller = Get.find<DashboardController>();
-  
+
   late DateTime startDate;
   late DateTime endDate;
   bool isSaving = false;
@@ -31,7 +32,8 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
   Future<void> _handleArchive() async {
     setState(() => isSaving = true);
     try {
-      final label = '${AppFormatters.shortDate.format(startDate)} - ${AppFormatters.shortDate.format(endDate)}';
+      final label =
+          '${AppFormatters.shortDate.format(startDate)} - ${AppFormatters.shortDate.format(endDate)}';
       await controller.archiveSelectedRange(
         startDate: startDate,
         endDate: endDate,
@@ -49,7 +51,7 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).padding.top - 60),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -58,7 +60,7 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: 20,
       ),
       child: SafeArea(
         top: false,
@@ -88,9 +90,9 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
               const SizedBox(height: 8),
               Text(
                 'Select a date range to archive. This will move the expenses and incomes within this range into the history archive.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
               ),
               const SizedBox(height: 16),
               _DateRow(

@@ -12,7 +12,7 @@ class SettlementDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).padding.top - 60),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -26,9 +26,9 @@ class SettlementDetailSheet extends StatelessWidget {
             children: [
               Text(
                 'Settlement Details',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               IconButton(
                 onPressed: Get.back,
@@ -79,9 +79,9 @@ class SettlementDetailSheet extends StatelessWidget {
         children: [
           Text(
             '${AppFormatters.shortDate.format(settlement.startDate)} - ${AppFormatters.shortDate.format(settlement.endDate)}',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           _SummaryRow(
@@ -104,9 +104,9 @@ class SettlementDetailSheet extends StatelessWidget {
       children: [
         Text(
           'Member Balances',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 12),
         ...settlement.balances.map(
@@ -126,8 +126,8 @@ class SettlementDetailSheet extends StatelessWidget {
                       Text(
                         'Paid: ${AppFormatters.currency.format(balance.paidAmount)}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade600,
-                            ),
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ],
                   ),
@@ -155,9 +155,9 @@ class SettlementDetailSheet extends StatelessWidget {
       children: [
         Text(
           'Required Transfers',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 12),
         ...settlement.transfers.map(
@@ -171,7 +171,10 @@ class SettlementDetailSheet extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.compare_arrows_rounded, color: Colors.orange),
+                  const Icon(
+                    Icons.compare_arrows_rounded,
+                    color: Colors.orange,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -200,17 +203,17 @@ class SettlementDetailSheet extends StatelessWidget {
       children: [
         Text(
           'Settled Expenses',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 12),
         if (settlement.expenses.isEmpty)
           Text(
             'No expenses in this settlement.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
           )
         else
           ...settlement.expenses.map((expenseMap) {
@@ -227,7 +230,7 @@ class SettlementDetailSheet extends StatelessWidget {
                 date = DateTime.parse(dateObj.toString());
               } catch (_) {}
             }
-            
+
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Container(
@@ -257,9 +260,8 @@ class SettlementDetailSheet extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             '$categoryName • $personName${date != null ? ' • ${AppFormatters.shortDate.format(date)}' : ''}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey.shade600,
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey.shade600),
                           ),
                         ],
                       ),
@@ -291,14 +293,11 @@ class _SummaryRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
         ),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
       ],
     );
   }

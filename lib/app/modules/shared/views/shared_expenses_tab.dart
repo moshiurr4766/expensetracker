@@ -48,14 +48,20 @@ class SharedExpensesTab extends StatelessWidget {
                     children: [
                       Text(
                         'Total Household Expense',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Colors.white70,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleSmall?.copyWith(color: Colors.white70),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        AppFormatters.currency.format(dashboard.sharedExpenses.fold<double>(0, (sum, item) => sum + item.amount)),
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        AppFormatters.currency.format(
+                          dashboard.sharedExpenses.fold<double>(
+                            0,
+                            (sum, item) => sum + item.amount,
+                          ),
+                        ),
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -69,7 +75,10 @@ class SharedExpensesTab extends StatelessWidget {
                     color: Colors.white.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.group_work_rounded, color: Colors.white),
+                  child: const Icon(
+                    Icons.group_work_rounded,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -80,7 +89,9 @@ class SharedExpensesTab extends StatelessWidget {
             child: SectionHeader(
               title: 'Household expenses',
               actionLabel: dashboard.canEditSharedExpenses ? 'Add' : null,
-              onAction: dashboard.canEditSharedExpenses ? () => expenseController.openForm() : null,
+              onAction: dashboard.canEditSharedExpenses
+                  ? () => expenseController.openForm()
+                  : null,
             ),
           ),
           const SizedBox(height: 8),
@@ -97,14 +108,20 @@ class SharedExpensesTab extends StatelessWidget {
               return TransactionTile(
                 title: expense.title,
                 subtitle:
-                    '${expense.categoryName} • ${expense.paidByPersonName} • ${AppFormatters.shortDate.format(expense.date)}${expense.note.isNotEmpty ? ' • ${expense.note}' : ''}',
+                    '${expense.paidByPersonName} • ${AppFormatters.shortDate.format(expense.date)}',
+                note: expense.note,
                 amount: AppFormatters.currency.format(expense.amount),
                 icon: AppIconMapper.byName(category?.icon ?? 'category'),
                 color: color,
-                onEdit: dashboard.canEditSharedExpenses ? () => expenseController.openForm(expense) : null,
-                onDelete: dashboard.canEditSharedExpenses ? () => _confirmDelete(
-                  onConfirm: () => expenseController.deleteExpense(expense.id),
-                ) : null,
+                onEdit: dashboard.canEditSharedExpenses
+                    ? () => expenseController.openForm(expense)
+                    : null,
+                onDelete: dashboard.canEditSharedExpenses
+                    ? () => _confirmDelete(
+                        onConfirm: () =>
+                            expenseController.deleteExpense(expense.id),
+                      )
+                    : null,
               );
             }),
         ],

@@ -65,11 +65,14 @@ class ProfileTab extends StatelessWidget {
             onShared: () => categoryController.openForm(null, 'shared'),
           ),
           const SizedBox(height: 24),
+
           _CollapsibleCategorySection(
             title: 'Income categories',
             type: 'income',
             isExpanded: expandedSections.contains('income'),
-            onToggle: () => expandedSections.contains('income') ? expandedSections.remove('income') : expandedSections.add('income'),
+            onToggle: () => expandedSections.contains('income')
+                ? expandedSections.remove('income')
+                : expandedSections.add('income'),
             categories: dashboard.categoriesForType('income'),
           ),
           const SizedBox(height: 12),
@@ -77,7 +80,9 @@ class ProfileTab extends StatelessWidget {
             title: 'Expense categories',
             type: 'expense',
             isExpanded: expandedSections.contains('expense'),
-            onToggle: () => expandedSections.contains('expense') ? expandedSections.remove('expense') : expandedSections.add('expense'),
+            onToggle: () => expandedSections.contains('expense')
+                ? expandedSections.remove('expense')
+                : expandedSections.add('expense'),
             categories: dashboard.categoriesForType('expense'),
           ),
           const SizedBox(height: 12),
@@ -85,7 +90,9 @@ class ProfileTab extends StatelessWidget {
             title: 'Household categories',
             type: 'shared',
             isExpanded: expandedSections.contains('shared'),
-            onToggle: () => expandedSections.contains('shared') ? expandedSections.remove('shared') : expandedSections.add('shared'),
+            onToggle: () => expandedSections.contains('shared')
+                ? expandedSections.remove('shared')
+                : expandedSections.add('shared'),
             categories: dashboard.categoriesForType('shared'),
           ),
           const SizedBox(height: 32),
@@ -474,9 +481,15 @@ class _CollapsibleCategorySection extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-              color: isExpanded ? AppColors.seed.withOpacity(0.05) : Colors.white,
+              color: isExpanded
+                  ? AppColors.seed.withOpacity(0.05)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: isExpanded ? AppColors.seed.withOpacity(0.3) : Colors.grey.shade200),
+              border: Border.all(
+                color: isExpanded
+                    ? AppColors.seed.withOpacity(0.3)
+                    : Colors.grey.shade200,
+              ),
             ),
             child: Row(
               children: [
@@ -484,13 +497,15 @@ class _CollapsibleCategorySection extends StatelessWidget {
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isExpanded ? AppColors.seed : Colors.black87,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: isExpanded ? AppColors.seed : Colors.black87,
+                    ),
                   ),
                 ),
                 Icon(
-                  isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                  isExpanded
+                      ? Icons.keyboard_arrow_up_rounded
+                      : Icons.keyboard_arrow_down_rounded,
                   color: isExpanded ? AppColors.seed : Colors.grey,
                 ),
               ],
@@ -531,8 +546,12 @@ class _CollapsibleCategorySection extends StatelessWidget {
                                       Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: Color(category.colorValue).withValues(alpha: .12),
-                                          borderRadius: BorderRadius.circular(12),
+                                          color: Color(
+                                            category.colorValue,
+                                          ).withValues(alpha: .12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: Icon(
                                           AppIconMapper.byName(category.icon),
@@ -543,18 +562,23 @@ class _CollapsibleCategorySection extends StatelessWidget {
                                       Expanded(
                                         child: Text(
                                           category.name,
-                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
                                                 fontWeight: FontWeight.w700,
                                               ),
                                         ),
                                       ),
                                       IconButton(
-                                        onPressed: () => categoryController.openForm(category),
+                                        onPressed: () => categoryController
+                                            .openForm(category),
                                         icon: const Icon(Icons.edit_outlined),
                                       ),
                                       IconButton(
                                         onPressed: () => _confirmDelete(
-                                          onConfirm: () => categoryController.deleteCategory(category.id),
+                                          onConfirm: () => categoryController
+                                              .deleteCategory(category.id),
                                         ),
                                         icon: const Icon(Icons.delete_outline),
                                       ),

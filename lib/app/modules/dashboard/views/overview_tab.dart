@@ -299,7 +299,8 @@ class OverviewTab extends GetView<DashboardController> {
                     ),
                     child: _InteractiveRowCard(
                       title: expense.title,
-                      subtitle: controller.displayCategoryName(expense),
+                      subtitle: AppFormatters.shortDate.format(expense.date),
+                      note: expense.note,
                       value: AppFormatters.currency.format(expense.amount),
                       icon: Icons.shopping_bag_rounded,
                       iconColor: const Color(0xFFE63946),
@@ -336,8 +337,8 @@ class OverviewTab extends GetView<DashboardController> {
                     ),
                     child: _InteractiveRowCard(
                       title: income.categoryName,
-                      subtitle:
-                          '${AppFormatters.shortDate.format(income.date)} • ${income.note}',
+                      subtitle: AppFormatters.shortDate.format(income.date),
+                      note: income.note,
                       value: '+${AppFormatters.currency.format(income.amount)}',
                       icon: Icons.account_balance_rounded,
                       iconColor: const Color(0xFF2A9D8F),
@@ -501,6 +502,7 @@ class _QuickActionButton extends StatelessWidget {
 class _InteractiveRowCard extends StatelessWidget {
   final String title;
   final String? subtitle;
+  final String? note;
   final String value;
   final IconData icon;
   final Color iconColor;
@@ -509,6 +511,7 @@ class _InteractiveRowCard extends StatelessWidget {
   const _InteractiveRowCard({
     required this.title,
     this.subtitle,
+    this.note,
     required this.value,
     required this.icon,
     required this.iconColor,
@@ -559,11 +562,31 @@ class _InteractiveRowCard extends StatelessWidget {
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 4),
-                        Text(
-                          subtitle!,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey.shade600),
-                        ),
+                        if (note != null && note!.isNotEmpty)
+                          RichText(
+                            text: TextSpan(
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey.shade600),
+                              children: [
+                                TextSpan(text: subtitle!),
+                                TextSpan(
+                                  text: ' • $note',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          Text(
+                            subtitle!,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey.shade600),
+                          ),
                       ],
                     ],
                   ),

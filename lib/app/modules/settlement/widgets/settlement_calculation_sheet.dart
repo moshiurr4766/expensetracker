@@ -14,7 +14,7 @@ class SettlementCalculationSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).padding.top - 60),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -23,7 +23,7 @@ class SettlementCalculationSheet extends StatelessWidget {
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: 20,
       ),
       child: SafeArea(
         top: false,
@@ -79,11 +79,15 @@ class SettlementCalculationSheet extends StatelessWidget {
                   children: [
                     _MetricCard(
                       title: 'Total expense',
-                      value: AppFormatters.currency.format(preview.totalExpense),
+                      value: AppFormatters.currency.format(
+                        preview.totalExpense,
+                      ),
                     ),
                     _MetricCard(
                       title: 'Avg share',
-                      value: AppFormatters.currency.format(preview.averageShare),
+                      value: AppFormatters.currency.format(
+                        preview.averageShare,
+                      ),
                     ),
                   ],
                 ),
@@ -174,9 +178,9 @@ class _MetricCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -211,9 +215,9 @@ class _BalanceTile extends StatelessWidget {
         children: [
           Text(
             balance.name,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
@@ -225,7 +229,9 @@ class _BalanceTile extends StatelessWidget {
                 ? 'Should receive ${AppFormatters.currency.format(balance.balanceAmount)}'
                 : 'Should pay ${AppFormatters.currency.format(balance.balanceAmount.abs())}',
             style: TextStyle(
-              color: isPositive ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+              color: isPositive
+                  ? const Color(0xFF16A34A)
+                  : const Color(0xFFDC2626),
               fontWeight: FontWeight.w700,
             ),
           ),

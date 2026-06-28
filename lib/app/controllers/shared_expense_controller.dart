@@ -17,7 +17,6 @@ class SharedExpenseController extends GetxController {
   final _dashboardController = Get.find<DashboardController>();
 
   final formKey = GlobalKey<FormState>();
-  final titleController = TextEditingController();
   final amountController = TextEditingController();
   final noteController = TextEditingController();
   final selectedCategoryId = RxnString();
@@ -33,7 +32,6 @@ class SharedExpenseController extends GetxController {
 
   @override
   void onClose() {
-    titleController.dispose();
     amountController.dispose();
     noteController.dispose();
     super.onClose();
@@ -41,7 +39,6 @@ class SharedExpenseController extends GetxController {
 
   void openForm([SharedExpenseModel? expense]) {
     editingExpense.value = expense;
-    titleController.text = expense?.title ?? '';
     amountController.text = expense?.amount.toStringAsFixed(2) ?? '';
     noteController.text = expense?.note ?? '';
     selectedCategoryId.value =
@@ -93,7 +90,7 @@ class SharedExpenseController extends GetxController {
       if (expense == null) {
         await _sharedExpenseService.addSharedExpense(
           uid: householdUid,
-          title: titleController.text,
+          title: category.name,
           categoryId: category.id,
           categoryName: category.name,
           paidByPersonId: person.id,
@@ -119,7 +116,7 @@ class SharedExpenseController extends GetxController {
         await _sharedExpenseService.updateSharedExpense(
           uid: householdUid,
           id: expense.id,
-          title: titleController.text,
+          title: category.name,
           categoryId: category.id,
           categoryName: category.name,
           paidByPersonId: person.id,
@@ -159,7 +156,6 @@ class SharedExpenseController extends GetxController {
 
   void clearForm() {
     editingExpense.value = null;
-    titleController.clear();
     amountController.clear();
     noteController.clear();
     selectedCategoryId.value = categories.isNotEmpty
@@ -169,7 +165,5 @@ class SharedExpenseController extends GetxController {
     selectedDate.value = DateTime.now();
   }
 
-  String? validateTitle(String? value) =>
-      AppValidators.requiredField(value, label: 'Expense title');
   String? validateAmount(String? value) => AppValidators.amount(value);
 }
