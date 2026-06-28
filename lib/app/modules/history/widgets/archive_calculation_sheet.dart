@@ -40,7 +40,7 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
         label: label,
       );
       Navigator.pop(Get.context!);
-      AppSnackbar.success('Successfully archived selected range');
+      AppSnackbar.success('Successfully calculated selected range');
     } catch (e) {
       AppSnackbar.error(e.toString());
     } finally {
@@ -72,7 +72,7 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Archive Monthly Ledger',
+                      'Calculate Monthly Ledger',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -89,7 +89,7 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Select a date range to archive. This will move the expenses and incomes within this range into the history archive.',
+                'Select a date range to calculate. This will move the expenses and incomes within this range into the history calculation.',
                 style: Theme.of(
                   context,
                 ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
@@ -108,8 +108,8 @@ class _ArchiveCalculationSheetState extends State<ArchiveCalculationSheet> {
               ),
               const SizedBox(height: 22),
               PrimaryButton(
-                label: 'Confirm and archive',
-                icon: Icons.archive_rounded,
+                label: 'Confirm and calculate',
+                icon: Icons.calculate_rounded,
                 loading: isSaving,
                 onPressed: _handleArchive,
               ),

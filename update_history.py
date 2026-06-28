@@ -1,65 +1,45 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import os
+import re
 
-import '../../../controllers/dashboard_controller.dart';
-import '../../../models/household_models.dart';
-import '../../../utils/formatters.dart';
-import '../../../widgets/empty_state.dart';
-import '../../../widgets/section_header.dart';
-import '../widgets/archive_calculation_sheet.dart';
-import '../widgets/history_summary_card.dart';
-import '../widgets/personal_archive_detail_sheet.dart';
+history_tab_path = 'lib/app/modules/history/views/history_tab.dart'
+archive_sheet_path = 'lib/app/modules/history/widgets/archive_calculation_sheet.dart'
+archive_detail_path = 'lib/app/modules/history/widgets/personal_archive_detail_sheet.dart'
 
-class HistoryTab extends StatelessWidget {
-  final bool includeSharedHistory;
+def update_file(path, replacements):
+    with open(path, 'r') as f:
+        content = f.read()
+    
+    for old, new in replacements:
+        content = content.replace(old, new)
+        
+    with open(path, 'w') as f:
+        f.write(content)
 
-  const HistoryTab({super.key, this.includeSharedHistory = true});
-  const HistoryTab.account({super.key}) : includeSharedHistory = false;
-  const HistoryTab.shared({super.key}) : includeSharedHistory = true;
+# Update Archive -> Calculate in history_tab
+update_file(history_tab_path, [
+    ("actionLabel: 'Archive',", "actionLabel: 'Calculate',"),
+    ("subtitle: 'The app will archive income and expense automatically each month.',", "subtitle: 'The app will calculate income and expense automatically each month.',"),
+])
 
-  @override
-  Widget build(BuildContext context) {
-    final dashboard = Get.find<DashboardController>();
+# Update Archive -> Calculate in archive_calculation_sheet
+update_file(archive_sheet_path, [
+    ("'Archive Monthly Ledger'", "'Calculate Monthly Ledger'"),
+    ("'Select a date range to archive. This will move the expenses and incomes within this range into the history archive.'", "'Select a date range to calculate. This will move the expenses and incomes within this range into the history calculation.'"),
+    ("'Confirm and archive'", "'Confirm and calculate'"),
+    ("Icons.archive_rounded", "Icons.calculate_rounded"),
+    ("AppSnackbar.success('Successfully archived selected range');", "AppSnackbar.success('Successfully calculated selected range');"),
+])
 
-    return Obx(
-      () => ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
-        children: [
-          const SectionHeader(title: 'History'),
-          const SizedBox(height: 16),
-          const HistorySummaryCard(),
-          const SizedBox(height: 16),
-          const SectionHeader(title: 'Monthly account history'),
-          const SizedBox(height: 10),
-          _MonthlyHistoryList(archives: dashboard.monthlyArchives.toList()),
-          if (includeSharedHistory) ...[
-            const SizedBox(height: 20),
-            Text(
-              'Household settlement history',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 10),
-            if (dashboard.settlementHistory.isEmpty)
-              const EmptyState(
-                icon: Icons.compare_arrows_rounded,
-                title: 'No settlement history yet',
-                subtitle:
-                    'Close the month from Shared tab to save settlement details.',
-              )
-            else
-              ...dashboard.settlementHistory.map(
-                (item) => _SettlementCard(item: item),
-              ),
-          ],
-        ],
-      ),
-    );
-  }
-}
+# Update Archive -> Calculate in personal_archive_detail_sheet
+update_file(archive_detail_path, [
+    ("'Archive Details'", "'Calculation Details'"),
+])
 
-class _ArchiveCard extends StatelessWidget {
+# Now let's replace the _ArchiveCard and _SettlementCard widgets entirely in history_tab
+with open(history_tab_path, 'r') as f:
+    content = f.read()
+
+archive_card_new = """class _ArchiveCard extends StatelessWidget {
   final MonthlyArchiveModel item;
 
   const _ArchiveCard({required this.item});
@@ -153,10 +133,9 @@ class _ArchiveCard extends StatelessWidget {
       ),
     );
   }
-}
+}"""
 
-
-class _SettlementCard extends StatelessWidget {
+settlement_card_new = """class _SettlementCard extends StatelessWidget {
   final SettlementHistoryModel item;
 
   const _SettlementCard({required this.item});
@@ -282,63 +261,18 @@ class _SettlementCard extends StatelessWidget {
       ),
     );
   }
-}
+}"""
 
-class _MonthlyHistoryList extends StatefulWidget {
-  final List<MonthlyArchiveModel> archives;
+import re
+# Regex to find _ArchiveCard class
+archive_pattern = re.compile(r'class _ArchiveCard extends StatelessWidget \{.*?\n\}\n', re.DOTALL)
+# Regex to find _SettlementCard class
+settlement_pattern = re.compile(r'class _SettlementCard extends StatelessWidget \{.*?\n\}\n', re.DOTALL)
 
-  const _MonthlyHistoryList({required this.archives});
+content = archive_pattern.sub(archive_card_new + '\n\n', content)
+content = settlement_pattern.sub(settlement_card_new + '\n', content)
 
-  @override
-  State<_MonthlyHistoryList> createState() => _MonthlyHistoryListState();
-}
+with open(history_tab_path, 'w') as f:
+    f.write(content)
 
-class _MonthlyHistoryListState extends State<_MonthlyHistoryList> {
-  String _searchQuery = '';
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.archives.isEmpty) {
-      return const EmptyState(
-        icon: Icons.history_rounded,
-        title: 'No monthly history yet',
-        subtitle: 'The app will calculate income and expense automatically each month.',
-      );
-    }
-
-    final filtered = widget.archives.where((a) {
-      return a.monthLabel.toLowerCase().contains(_searchQuery.toLowerCase());
-    }).toList();
-
-    return Column(
-      children: [
-        TextField(
-          decoration: InputDecoration(
-            hintText: 'Search month (e.g., Jun 2026)',
-            prefixIcon: const Icon(Icons.search_rounded, color: Colors.grey),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
-          onChanged: (val) {
-            setState(() {
-              _searchQuery = val;
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        if (filtered.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(24.0),
-            child: Text('No results found.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
-          )
-        else
-          ...filtered.map((item) => _ArchiveCard(item: item)),
-      ],
-    );
-  }
-}
+print("UI Update Complete")

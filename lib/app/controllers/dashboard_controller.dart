@@ -38,6 +38,7 @@ class DashboardController extends GetxController {
   final summary = DashboardSummary.initial().obs;
   final monthlyPoints = <MonthlyFinancePoint>[].obs;
   final categoryPoints = <CategorySpendPoint>[].obs;
+  final personalCategoryPoints = <CategorySpendPoint>[].obs;
   final personPaymentPoints = <PersonPaymentPoint>[].obs;
 
   String get uid => _authService.currentUser?.uid ?? '';
@@ -208,34 +209,45 @@ class DashboardController extends GetxController {
   Future<void> _archiveIfMonthChanged(String uid) async {
     final storage = Get.find<LocalStorageService>();
     final currentMonthKey = DateFormat('yyyy-MM').format(DateTime.now());
-    if (storage.lastArchivedMonth == currentMonthKey) return;
 
     final existingIncomes = await _personalExpenseService.watchIncomes(uid).first;
     final existingExpenses = await _personalExpenseService.watchExpenses(uid).first;
-    final hasStaleData = existingIncomes.any(
-          (item) => DateFormat('yyyy-MM').format(item.date) != currentMonthKey,
-        ) ||
-        existingExpenses.any(
-          (item) => DateFormat('yyyy-MM').format(item.date) != currentMonthKey,
-        );
 
-    if (existingIncomes.isEmpty && existingExpenses.isEmpty) {
-      await storage.saveLastArchivedMonth(currentMonthKey);
-      return;
+    final groupedRecords = <String, Map<String, dynamic>>{};
+
+    for (final item in existingIncomes) {
+      final key = DateFormat('yyyy-MM').format(item.date);
+      if (key.compareTo(currentMonthKey) < 0) {
+        groupedRecords.putIfAbsent(key, () => {'incomes': <IncomeModel>[], 'expenses': <ExpenseModel>[]});
+        groupedRecords[key]!['incomes'].add(item);
+      }
     }
 
-    if (!hasStaleData) {
-      await storage.saveLastArchivedMonth(currentMonthKey);
-      return;
+    for (final item in existingExpenses) {
+      final key = DateFormat('yyyy-MM').format(item.date);
+      if (key.compareTo(currentMonthKey) < 0) {
+        groupedRecords.putIfAbsent(key, () => {'incomes': <IncomeModel>[], 'expenses': <ExpenseModel>[]});
+        groupedRecords[key]!['expenses'].add(item);
+      }
     }
 
-    await _personalExpenseService.archiveMonthlyLedger(
-      uid: uid,
-      monthKey: currentMonthKey,
-      monthLabel: DateFormat('MMMM yyyy').format(DateTime.now()),
-      expenses: existingExpenses,
-      incomes: existingIncomes,
-    );
+    for (final entry in groupedRecords.entries) {
+      final monthKey = entry.key;
+      final date = DateFormat('yyyy-MM').parse(monthKey);
+      final monthLabel = DateFormat('MMMM yyyy').format(date);
+      
+      final incomes = entry.value['incomes'] as List<IncomeModel>;
+      final expenses = entry.value['expenses'] as List<ExpenseModel>;
+      
+      await _personalExpenseService.archiveMonthlyLedger(
+        uid: uid,
+        monthKey: monthKey,
+        monthLabel: monthLabel,
+        expenses: expenses,
+        incomes: incomes,
+      );
+    }
+    
     await storage.saveLastArchivedMonth(currentMonthKey);
   }
 
@@ -475,6 +487,7 @@ class DashboardController extends GetxController {
 
     monthlyPoints.assignAll(_buildMonthlyPoints());
     categoryPoints.assignAll(_buildCategoryPoints());
+    personalCategoryPoints.assignAll(_buildPersonalCategoryPoints());
     personPaymentPoints.assignAll(_buildPersonPaymentPoints());
 
     final highestExpenseCategory = categoryPoints.isEmpty
@@ -524,6 +537,31 @@ class DashboardController extends GetxController {
   List<CategorySpendPoint> _buildCategoryPoints() {
     final grouped = <String, CategorySpendPoint>{};
     for (final expense in sharedExpenses) {
+      final label = displayCategoryName(expense);
+      final current = grouped[label];
+      if (current == null) {
+        grouped[label] = CategorySpendPoint(
+          label: label,
+          amount: expense.amount,
+          count: 1,
+        );
+      } else {
+        grouped[label] = CategorySpendPoint(
+          label: current.label,
+          amount: current.amount + expense.amount,
+          count: current.count + 1,
+        );
+      }
+    }
+
+    final points = grouped.values.toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
+    return points;
+  }
+
+  List<CategorySpendPoint> _buildPersonalCategoryPoints() {
+    final grouped = <String, CategorySpendPoint>{};
+    for (final expense in expenses) {
       final label = displayCategoryName(expense);
       final current = grouped[label];
       if (current == null) {

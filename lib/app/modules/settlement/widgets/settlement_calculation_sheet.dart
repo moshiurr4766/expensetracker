@@ -73,23 +73,33 @@ class SettlementCalculationSheet extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 18),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _MetricCard(
-                      title: 'Total expense',
-                      value: AppFormatters.currency.format(
-                        preview.totalExpense,
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Total Expense', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                          const SizedBox(height: 4),
+                          Text(AppFormatters.currency.format(preview.totalExpense), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                        ],
                       ),
-                    ),
-                    _MetricCard(
-                      title: 'Avg share',
-                      value: AppFormatters.currency.format(
-                        preview.averageShare,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Text('Avg Share', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                          const SizedBox(height: 4),
+                          Text(AppFormatters.currency.format(preview.averageShare), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 18),
                 Text(
@@ -99,9 +109,24 @@ class SettlementCalculationSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                ...preview.balances.map(
-                  (balance) => _BalanceTile(balance: balance),
-                ),
+                ...preview.balances.map((balance) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(balance.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                          'Balance: ${AppFormatters.currency.format(balance.balanceAmount)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: balance.balanceAmount < 0 ? Theme.of(context).colorScheme.error : Colors.green.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
                 const SizedBox(height: 18),
                 Text(
                   'Who should pay whom',
@@ -149,97 +174,7 @@ class SettlementCalculationSheet extends StatelessWidget {
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  final String title;
-  final String value;
 
-  const _MetricCard({required this.title, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BalanceTile extends StatelessWidget {
-  final SettlementPersonBalance balance;
-
-  const _BalanceTile({required this.balance});
-
-  @override
-  Widget build(BuildContext context) {
-    final isPositive = balance.balanceAmount >= 0;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            balance.name,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Paid ${AppFormatters.currency.format(balance.paidAmount)} | Share ${AppFormatters.currency.format(balance.shareAmount)}',
-          ),
-          const SizedBox(height: 6),
-          Text(
-            isPositive
-                ? 'Should receive ${AppFormatters.currency.format(balance.balanceAmount)}'
-                : 'Should pay ${AppFormatters.currency.format(balance.balanceAmount.abs())}',
-            style: TextStyle(
-              color: isPositive
-                  ? const Color(0xFF16A34A)
-                  : const Color(0xFFDC2626),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _DateRow extends StatelessWidget {
   final String label;

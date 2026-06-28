@@ -24,25 +24,53 @@ class SettlementTab extends StatelessWidget {
             onAction: controller.openCalculationSheet,
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: [
-              ChoiceChip(
-                label: const Text('All'),
-                selected: controller.selectedFilter.value == 'all',
-                onSelected: (_) => controller.selectedFilter.value = 'all',
-              ),
-              ChoiceChip(
-                label: const Text('This month'),
-                selected: controller.selectedFilter.value == 'month',
-                onSelected: (_) => controller.selectedFilter.value = 'month',
-              ),
-              ChoiceChip(
-                label: const Text('This year'),
-                selected: controller.selectedFilter.value == 'year',
-                onSelected: (_) => controller.selectedFilter.value = 'year',
-              ),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                ChoiceChip(
+                  label: const Text('All'),
+                  selected: controller.selectedFilter.value == 'all',
+                  onSelected: (_) => controller.selectedFilter.value = 'all',
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('This month'),
+                  selected: controller.selectedFilter.value == 'month',
+                  onSelected: (_) => controller.selectedFilter.value = 'month',
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('3 Months'),
+                  selected: controller.selectedFilter.value == '3_months',
+                  onSelected: (_) => controller.selectedFilter.value = '3_months',
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('6 Months'),
+                  selected: controller.selectedFilter.value == '6_months',
+                  onSelected: (_) => controller.selectedFilter.value = '6_months',
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('1 Year'),
+                  selected: controller.selectedFilter.value == '1_year',
+                  onSelected: (_) => controller.selectedFilter.value = '1_year',
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('3 Years'),
+                  selected: controller.selectedFilter.value == '3_years',
+                  onSelected: (_) => controller.selectedFilter.value = '3_years',
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('5 Years'),
+                  selected: controller.selectedFilter.value == '5_years',
+                  onSelected: (_) => controller.selectedFilter.value = '5_years',
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
           if (controller.filteredHistory.isEmpty)
@@ -133,7 +161,7 @@ class SettlementTab extends StatelessWidget {
                             children: [
                               Text(balance.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                               Text(
-                                'Bal: ${AppFormatters.currency.format(balance.balanceAmount)}',
+                                'Balance: ${AppFormatters.currency.format(balance.balanceAmount)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: balance.balanceAmount < 0 ? Theme.of(context).colorScheme.error : Colors.green.shade700,

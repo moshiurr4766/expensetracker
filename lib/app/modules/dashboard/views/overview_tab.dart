@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../../../controllers/dashboard_controller.dart';
 import '../../../controllers/invite_controller.dart';
@@ -121,7 +122,7 @@ class OverviewTab extends GetView<DashboardController> {
                     }),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 Text(
                   'Total Net Balance',
                   style: Theme.of(
@@ -145,29 +146,36 @@ class OverviewTab extends GetView<DashboardController> {
             offset: const Offset(0, -20),
             child: SizedBox(
               height: 140,
-              child: ListView(
+              child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
                 clipBehavior: Clip.none,
-                children: [
-                  _InteractiveNavCard(
-                    title: 'Expense',
-                    subtitle: 'Expense Hub',
-                    icon: Icons.account_balance_wallet_rounded,
-                    color: Theme.of(context).colorScheme.primary,
-                    value: AppFormatters.currency.format(summary.totalExpense),
-                    onTap: () => controller.changeTab(1),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: MediaQuery.of(context).size.width,
                   ),
-                  const SizedBox(width: 16),
-                  _InteractiveNavCard(
-                    title: 'Household',
-                    subtitle: 'Household Hub',
-                    icon: Icons.group_work_rounded,
-                    color: const Color(0xFF7209B7),
-                    value: AppFormatters.currency.format(sharedTotalExpense),
-                    onTap: () => controller.changeTab(2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _InteractiveNavCard(
+                        title: 'Expense',
+                        subtitle: 'Expense Hub',
+                        icon: Icons.account_balance_wallet_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        value: AppFormatters.currency.format(summary.totalExpense),
+                        onTap: () => controller.changeTab(1),
+                      ),
+                      const SizedBox(width: 16),
+                      _InteractiveNavCard(
+                        title: 'Household',
+                        subtitle: 'Household Hub',
+                        icon: Icons.group_work_rounded,
+                        color: const Color(0xFF7209B7),
+                        value: AppFormatters.currency.format(sharedTotalExpense),
+                        onTap: () => controller.changeTab(2),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -238,7 +246,42 @@ class OverviewTab extends GetView<DashboardController> {
           ),
           const SizedBox(height: 32),
 
-          // 5. Shared Member Payments (Tappable)
+          // 5. Top Expense Categories
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: SectionHeader(title: 'Top Expense Categories'),
+          ),
+          const SizedBox(height: 12),
+          if (controller.personalCategoryPoints.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'No expenses yet.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+              ),
+            )
+          else
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.text.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: _CategoryPieChart(points: controller.personalCategoryPoints),
+            ),
+          const SizedBox(height: 32),
+
+          // 6. Shared Member Payments (Tappable)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: SectionHeader(title: 'Household Member Payments'),
@@ -635,6 +678,105 @@ class _Legend extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CategoryPieChart extends StatefulWidget {
+  final List<dynamic> points;
+  const _CategoryPieChart({required this.points});
+
+  @override
+  State<_CategoryPieChart> createState() => _CategoryPieChartState();
+}
+
+class _CategoryPieChartState extends State<_CategoryPieChart> {
+  int touchedIndex = -1;
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.points.isEmpty) return const SizedBox.shrink();
+    
+    final total = widget.points.fold<double>(0, (sum, point) => sum + point.amount);
+    
+    final colors = [
+      const Color(0xFF4361EE),
+      const Color(0xFFF72585),
+      const Color(0xFF7209B7),
+      const Color(0xFF3A0CA3),
+      const Color(0xFF4CC9F0),
+      Colors.orange,
+      Colors.teal,
+      Colors.indigo,
+    ];
+
+    return SizedBox(
+      height: 250,
+      child: Stack(
+        children: [
+          PieChart(
+            PieChartData(
+              pieTouchData: PieTouchData(
+                touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                  setState(() {
+                    if (!event.isInterestedForInteractions ||
+                        pieTouchResponse == null ||
+                        pieTouchResponse.touchedSection == null) {
+                      touchedIndex = -1;
+                      return;
+                    }
+                    touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                  });
+                },
+              ),
+              borderData: FlBorderData(show: false),
+              sectionsSpace: 2,
+              centerSpaceRadius: 70,
+              sections: List.generate(widget.points.length, (i) {
+                final isTouched = i == touchedIndex;
+                final radius = isTouched ? 40.0 : 30.0;
+                final point = widget.points[i];
+                
+                return PieChartSectionData(
+                  color: colors[i % colors.length],
+                  value: point.amount,
+                  title: '',
+                  radius: radius,
+                  titleStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                );
+              }),
+            ),
+          ),
+          Center(
+            child: touchedIndex != -1 
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.points[touchedIndex].label,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${(widget.points[touchedIndex].amount / total * 100).toStringAsFixed(1)}%',
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF7209B7)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        AppFormatters.currency.format(widget.points[touchedIndex].amount),
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  )
+                : const Text('Tap to view\ndetails', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+          ),
+        ],
+      ),
     );
   }
 }

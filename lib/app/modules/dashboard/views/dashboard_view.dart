@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,6 +15,8 @@ class DashboardView extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+    final scrollOffset = 0.0.obs;
+
     final tabs = const [
       OverviewTab(),
       ExpenseHubTab(),
@@ -26,9 +29,46 @@ class DashboardView extends GetView<DashboardController> {
         extendBody: true,
         body: controller.isLoading.value
             ? const Center(child: CircularProgressIndicator())
-            : IndexedStack(
-                index: controller.selectedIndex.value,
-                children: tabs,
+            : NotificationListener<ScrollUpdateNotification>(
+                onNotification: (notification) {
+                  // Only listen to vertical scrolling
+                  if (notification.metrics.axis == Axis.vertical) {
+                    scrollOffset.value = notification.metrics.pixels;
+                  }
+                  return false;
+                },
+                child: Stack(
+                  children: [
+                    IndexedStack(
+                      index: controller.selectedIndex.value,
+                      children: tabs,
+                    ),
+                    Obx(() {
+                      final opacity = (scrollOffset.value / 100).clamp(0.0, 1.0);
+                      if (opacity == 0) return const SizedBox.shrink();
+                      
+                      return Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: IgnorePointer(
+                          child: ClipRect(
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(
+                                sigmaX: 5.0 * opacity,
+                                sigmaY: 5.0 * opacity,
+                              ),
+                              child: Container(
+                                height: MediaQuery.of(context).padding.top * 0.75,
+                                color: Colors.white.withOpacity(0.3 * opacity),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
               ),
         bottomNavigationBar: SafeArea(
           child: Container(
