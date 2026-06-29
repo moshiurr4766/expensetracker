@@ -6,6 +6,7 @@ import '../../../controllers/dashboard_controller.dart';
 import '../../expense/views/expense_hub_tab.dart';
 import '../../profile/views/profile_tab.dart';
 import '../../shared/views/shared_hub_tab.dart';
+import '../../chat/views/chat_users_view.dart';
 import 'overview_tab.dart';
 
 import '../../../theme/app_colors.dart';
@@ -21,6 +22,7 @@ class DashboardView extends GetView<DashboardController> {
       OverviewTab(),
       ExpenseHubTab(),
       SharedHubTab(),
+      ChatUsersView(),
       ProfileTab(),
     ];
 
@@ -96,7 +98,8 @@ class DashboardView extends GetView<DashboardController> {
                 _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard_rounded, 'Home'),
                 _buildNavItem(1, Icons.payments_outlined, Icons.payments_rounded, 'Expense'),
                 _buildNavItem(2, Icons.group_work_outlined, Icons.group_work_rounded, 'Household'),
-                _buildNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+                _buildNavItem(3, Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, 'Chat'),
+                _buildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
               ],
             ),
           ),

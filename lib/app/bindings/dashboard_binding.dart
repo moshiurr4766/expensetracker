@@ -6,6 +6,7 @@ import '../controllers/expense_controller.dart';
 import '../controllers/income_controller.dart';
 import '../controllers/shared_expense_controller.dart';
 import '../controllers/settlement_controller.dart';
+import '../modules/chat/controllers/chat_users_controller.dart';
 
 class DashboardBinding extends Bindings {
   @override
@@ -16,5 +17,6 @@ class DashboardBinding extends Bindings {
     Get.put(IncomeController());
     Get.put(CategoryController());
     Get.put(SettlementController());
+    Get.put(ChatUsersController());
   }
 }

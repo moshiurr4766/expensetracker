@@ -12,6 +12,7 @@ import '../../../utils/formatters.dart';
 import '../../../widgets/analysis_chart.dart';
 import '../../../widgets/analysis_line_chart.dart';
 import '../../../widgets/section_header.dart';
+import '../../../routes/app_routes.dart';
 
 class OverviewTab extends GetView<DashboardController> {
   const OverviewTab({super.key});

@@ -22,6 +22,9 @@ class AppConstants {
   static const sharedExpensesCollection = 'shared_expenses';
   static const peopleCollection = 'people';
   static const settlementHistoryCollection = 'settlement_history';
+
+  // Chat collection
+  static const chatCollection = 'chat';
 }
 
 class Routes {
@@ -30,6 +33,8 @@ class Routes {
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
   static const dashboard = '/dashboard';
+  static const chatUsers = '/chat-users';
+  static const chat = '/chat';
 }
 
 class AppDefaults {
