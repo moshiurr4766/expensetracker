@@ -63,7 +63,11 @@ class ChatUsersView extends GetView<ChatUsersController> {
           itemCount: controller.users.length,
           separatorBuilder: (context, index) => Padding(
             padding: const EdgeInsets.only(left: 92, right: 20),
-            child: Divider(height: 1, thickness: 1, color: Colors.grey.withOpacity(0.15)),
+            child: Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey.withOpacity(0.15),
+            ),
           ),
           itemBuilder: (context, index) {
             final user = controller.users[index];

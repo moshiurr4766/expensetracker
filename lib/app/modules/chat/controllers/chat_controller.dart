@@ -10,12 +10,12 @@ import '../../../utils/app_snackbar.dart';
 class ChatController extends GetxController {
   final String peerId = Get.arguments['peerId'];
   final String peerName = Get.arguments['peerName'];
-  
+
   final messageController = TextEditingController();
   final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-  
+
   final messages = <ChatMessageModel>[].obs;
-  
+
   String get conversationId {
     if (currentUserId.compareTo(peerId) > 0) {
       return '${currentUserId}_$peerId';
@@ -44,23 +44,23 @@ class ChatController extends GetxController {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .listen(
-      (snapshot) {
-        messages.value = snapshot.docs
-            .map((doc) => ChatMessageModel.fromFirestore(doc))
-            .toList();
-      },
-      onError: (error) {
-        AppSnackbar.error('Failed to load messages');
-      },
-    );
+          (snapshot) {
+            messages.value = snapshot.docs
+                .map((doc) => ChatMessageModel.fromFirestore(doc))
+                .toList();
+          },
+          onError: (error) {
+            AppSnackbar.error('Failed to load messages');
+          },
+        );
   }
 
   Future<void> sendMessage() async {
     final text = messageController.text.trim();
     if (text.isEmpty) return;
-    
+
     messageController.clear();
-    
+
     final messageData = ChatMessageModel(
       id: '', // Will be assigned by Firestore
       senderId: currentUserId,
@@ -80,9 +80,7 @@ class ChatController extends GetxController {
         'lastUpdated': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      await chatDocRef
-          .collection('messages')
-          .add(messageData.toMap());
+      await chatDocRef.collection('messages').add(messageData.toMap());
     } catch (e) {
       AppSnackbar.error('Failed to send message');
     }
