@@ -23,12 +23,33 @@ class ChatUsersView extends GetView<ChatUsersController> {
         elevation: 0,
         centerTitle: false,
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: TextField(
+              onChanged: (value) => controller.searchQuery.value = value,
+              decoration: InputDecoration(
+                hintText: 'Search by name or email...',
+                hintStyle: const TextStyle(color: AppColors.muted, fontSize: 14),
+                prefixIcon: const Icon(Icons.search, color: AppColors.muted),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: AppColors.seed.withOpacity(0.05),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-        if (controller.users.isEmpty) {
+              if (controller.filteredUsers.isEmpty) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -60,7 +81,7 @@ class ChatUsersView extends GetView<ChatUsersController> {
 
         return ListView.separated(
           padding: const EdgeInsets.only(top: 8, bottom: 112),
-          itemCount: controller.users.length,
+          itemCount: controller.filteredUsers.length,
           separatorBuilder: (context, index) => Padding(
             padding: const EdgeInsets.only(left: 92, right: 20),
             child: Divider(
@@ -70,7 +91,7 @@ class ChatUsersView extends GetView<ChatUsersController> {
             ),
           ),
           itemBuilder: (context, index) {
-            final user = controller.users[index];
+            final user = controller.filteredUsers[index];
             final name = user['name'] ?? 'Unknown User';
             final email = user['email'] ?? 'No email';
             final uid = user['uid'];
@@ -87,7 +108,8 @@ class ChatUsersView extends GetView<ChatUsersController> {
             );
           },
         );
-      }),
+      })),
+    ]),
     );
   }
 }

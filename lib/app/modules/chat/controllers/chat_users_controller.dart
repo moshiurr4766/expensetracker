@@ -8,8 +8,20 @@ import '../../../utils/app_snackbar.dart';
 class ChatUsersController extends GetxController {
   final isLoading = true.obs;
   final users = <Map<String, dynamic>>[].obs;
+  final searchQuery = ''.obs;
 
   final currentUser = FirebaseAuth.instance.currentUser;
+
+  List<Map<String, dynamic>> get filteredUsers {
+    if (searchQuery.value.isEmpty) return users;
+    
+    final query = searchQuery.value.toLowerCase();
+    return users.where((user) {
+      final name = (user['name'] ?? '').toString().toLowerCase();
+      final email = (user['email'] ?? '').toString().toLowerCase();
+      return name.contains(query) || email.contains(query);
+    }).toList();
+  }
 
   @override
   void onInit() {
